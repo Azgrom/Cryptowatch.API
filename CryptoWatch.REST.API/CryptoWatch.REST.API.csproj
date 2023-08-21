@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
-        <Version>0.2.3</Version>
+        <Version>0.2.4</Version>
         <AssemblyName>CryptoWatch.REST.API</AssemblyName>
         <RootNamespace>CryptoWatch.REST.API</RootNamespace>
         <PackageId>CryptoWatch.REST.API</PackageId>
@@ -15,8 +15,8 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageProjectUrl>https://github.com/Azgrom/Cryptowatch.API</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Azgrom/Cryptowatch.API/tree/master</RepositoryUrl>
-        <PackageIcon>cryptowat.ch.png</PackageIcon>
         <Description>A client for interacting with the CryptoWatch REST API</Description>
+        <PackageIcon>cryptowat.ch.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,12 +31,6 @@
 
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="/" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="..\cryptowat.ch.png">
-        <Link>cryptowat.ch.png</Link>
-      </Content>
     </ItemGroup>
 
 </Project>
