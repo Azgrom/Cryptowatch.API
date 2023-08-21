@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
-        <Version>0.2.4</Version>
+        <Version>0.2.6</Version>
         <AssemblyName>CryptoWatch.REST.API</AssemblyName>
         <RootNamespace>CryptoWatch.REST.API</RootNamespace>
         <PackageId>CryptoWatch.REST.API</PackageId>
@@ -31,6 +31,7 @@
 
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="/" />
+        <None Include="cryptowat.ch.png" Pack="true" PackagePath="/" />
     </ItemGroup>
 
 </Project>
