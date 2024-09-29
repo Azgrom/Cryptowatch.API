@@ -3,20 +3,59 @@ using System.Text.Json.Serialization;
 
 namespace CryptoWatch.REST.API;
 
-public class AssetInfoResponse
+public struct AssetInfo
 {
-    [JsonPropertyName("error")]
-    public Error[] error { get; set; }
+    [JsonConstructor]
+    public AssetInfo(
+        int    decimals,
+        int    displayDecimals,
+        int    collateralValue,
+        string aclass,
+        string altname,
+        string status
+    )
+    {
+        Decimals = decimals;
+        DisplayDecimals = displayDecimals;
+        CollateralValue = collateralValue;
+        Aclass = aclass;
+        Altname = altname;
+        Status = status;
+    }
 
-    [JsonPropertyName("result")]
-    public AssetInfoCollection AssetInfoCollection { get; set; }
+    [JsonPropertyName("decimals")]
+    public int Decimals { get; set; }
+    [JsonPropertyName("display_decimals")]
+    public int DisplayDecimals { get; set; }
+    [JsonPropertyName("collateral_value")]
+    public int CollateralValue { get; set; }
+    [JsonPropertyName("aclass")]
+    public string Aclass { get; set; }
+    [JsonPropertyName("altname")]
+    public string Altname { get; set; }
+    [JsonPropertyName("status")]
+    public string Status { get; set; }
 }
 
-public class AssetInfoCollection : IDictionary<string, AssetInfo>
+public struct AssetInfoCollection : IDictionary<string, AssetInfo>
 {
-    private IDictionary<string, AssetInfo> _dictionaryImplementation;
+    private readonly IDictionary<string, AssetInfo> _dictionaryImplementation;
+
+    [JsonConstructor]
+    public AssetInfoCollection(IDictionary<string, AssetInfo> dictionaryImplementation) =>
+        _dictionaryImplementation = dictionaryImplementation;
 
     #region IDictionary<string,AssetInfo> Members
+
+    public int Count => _dictionaryImplementation.Count;
+    public bool IsReadOnly => _dictionaryImplementation.IsReadOnly;
+    public ICollection<string> Keys => _dictionaryImplementation.Keys;
+    public ICollection<AssetInfo> Values => _dictionaryImplementation.Values;
+    public AssetInfo this[string key]
+    {
+        get => _dictionaryImplementation[key];
+        set => _dictionaryImplementation[key] = value;
+    }
 
     public IEnumerator<KeyValuePair<string, AssetInfo>> GetEnumerator() => _dictionaryImplementation.GetEnumerator();
 
@@ -33,10 +72,6 @@ public class AssetInfoCollection : IDictionary<string, AssetInfo>
 
     public bool Remove(KeyValuePair<string, AssetInfo> item) => _dictionaryImplementation.Remove(item);
 
-    public int Count => _dictionaryImplementation.Count;
-
-    public bool IsReadOnly => _dictionaryImplementation.IsReadOnly;
-
     public void Add(string key, AssetInfo value) => _dictionaryImplementation.Add(key, value);
 
     public bool ContainsKey(string key) => _dictionaryImplementation.ContainsKey(key);
@@ -45,25 +80,18 @@ public class AssetInfoCollection : IDictionary<string, AssetInfo>
 
     public bool TryGetValue(string key, out AssetInfo value) => _dictionaryImplementation.TryGetValue(key, out value);
 
-    public AssetInfo this[string key]
-    {
-        get => _dictionaryImplementation[key];
-        set => _dictionaryImplementation[key] = value;
-    }
-
-    public ICollection<string> Keys => _dictionaryImplementation.Keys;
-
-    public ICollection<AssetInfo> Values => _dictionaryImplementation.Values;
-
     #endregion
 }
 
-public class AssetInfo
+public struct AssetInfoResponse
 {
-    public string aclass           { get; set; }
-    public string altname          { get; set; }
-    public int    decimals         { get; set; }
-    public int    display_decimals { get; set; }
-    public int    collateral_value { get; set; }
-    public string status           { get; set; }
+    [JsonConstructor]
+    public AssetInfoResponse(Error[] error, AssetInfoCollection assetInfoCollection)
+    {
+        Error = error;
+        AssetInfoCollection = assetInfoCollection;
+    }
+
+    [JsonPropertyName("error")] public Error[] Error { get; set; }
+    [JsonPropertyName("result")] public AssetInfoCollection AssetInfoCollection { get; set; }
 }

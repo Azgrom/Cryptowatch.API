@@ -1,5 +1,5 @@
 namespace CryptoWatch.REST.API;
 
-public class Error
+public struct Error
 {
 }

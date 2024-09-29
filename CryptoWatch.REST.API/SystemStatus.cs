@@ -2,20 +2,34 @@ using System.Text.Json.Serialization;
 
 namespace CryptoWatch.REST.API;
 
-public class SystemStatusResponse
+public struct SystemStatusResponse
 {
+    [JsonConstructor]
+    public SystemStatusResponse(Error[] error, SystemStatus result)
+    {
+        Error = error;
+        Result = result;
+    }
+
     [JsonPropertyName("error")]
-    public Error[] error { get; set; }
+    public Error[] Error { get; set; }
 
     [JsonPropertyName("result")]
-    public SystemStatus result { get; set; }
+    public SystemStatus Result { get; set; }
 }
 
-public class SystemStatus
+public struct SystemStatus
 {
+    [JsonConstructor]
+    public SystemStatus(string status, string timestamp)
+    {
+        Status = status;
+        Timestamp = timestamp;
+    }
+
     [JsonPropertyName("status")]
-    public string status { get; set; }
+    public string Status { get; set; }
 
     [JsonPropertyName("timestamp")]
-    public string timestamp { get; set; }
+    public string Timestamp { get; set; }
 }

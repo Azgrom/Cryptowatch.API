@@ -2,20 +2,34 @@ using System.Text.Json.Serialization;
 
 namespace CryptoWatch.REST.API;
 
-public class ServerTimeResponse
+public struct ServerTime
 {
-    [JsonPropertyName("error")]
-    public Error[] error { get; set; }
+    [JsonConstructor]
+    public ServerTime(int unixTime, string rfc1123)
+    {
+        UnixTime = unixTime;
+        Rfc1123 = rfc1123;
+    }
 
-    [JsonPropertyName("result")]
-    public ServerTime result { get; set; }
-}
-
-public class ServerTime
-{
     [JsonPropertyName("unixtime")]
-    public int unixtime { get; set; }
+    public int UnixTime { get; set; }
 
     [JsonPropertyName("rfc1123")]
-    public string rfc1123 { get; set; }
+    public string Rfc1123 { get; set; }
+}
+
+public struct ServerTimeResponse
+{
+    [JsonConstructor]
+    public ServerTimeResponse(Error[] error, ServerTime result)
+    {
+        Error = error;
+        Result = result;
+    }
+
+    [JsonPropertyName("error")]
+    public Error[] Error { get; set; }
+
+    [JsonPropertyName("result")]
+    public ServerTime Result { get; set; }
 }
