@@ -33,30 +33,30 @@ public struct TradableAssetPairInfo
         double[][] feesMaker
     )
     {
-        MarginCall = marginCall;
-        MarginStop = marginStop;
-        CostDecimals = costDecimals;
-        PairDecimals = pairDecimals;
-        LotDecimals = lotDecimals;
-        LotMultiplier = lotMultiplier;
-        LongPositionLimit = longPositionLimit;
+        MarginCall         = marginCall;
+        MarginStop         = marginStop;
+        CostDecimals       = costDecimals;
+        PairDecimals       = pairDecimals;
+        LotDecimals        = lotDecimals;
+        LotMultiplier      = lotMultiplier;
+        LongPositionLimit  = longPositionLimit;
         ShortPositionLimit = shortPositionLimit;
-        LeverageBuy = leverageBuy;
-        LeverageSell = leverageSell;
-        Lot = lot;
-        Base = @base;
-        Quote = quote;
-        Status = status;
-        WsName = wsName;
-        AltName = altName;
-        CostMin = costMin;
-        OrderMin = orderMin;
-        TickSize = tickSize;
-        AClassBase = aClassBase;
-        AClassQuote = aClassQuote;
-        FeeVolumeCurrency = feeVolumeCurrency;
-        Fees = fees;
-        FeesMaker = feesMaker;
+        LeverageBuy        = leverageBuy;
+        LeverageSell       = leverageSell;
+        Lot                = lot;
+        Base               = @base;
+        Quote              = quote;
+        Status             = status;
+        WsName             = wsName;
+        AltName            = altName;
+        CostMin            = costMin;
+        OrderMin           = orderMin;
+        TickSize           = tickSize;
+        AClassBase         = aClassBase;
+        AClassQuote        = aClassQuote;
+        FeeVolumeCurrency  = feeVolumeCurrency;
+        Fees               = fees;
+        FeesMaker          = feesMaker;
     }
 
     [JsonPropertyName("margin_call")]          public int        MarginCall         { get; set; }
@@ -85,7 +85,7 @@ public struct TradableAssetPairInfo
     [JsonPropertyName("fees_maker")]           public double[][] FeesMaker          { get; set; }
 }
 
-public struct TradableAssetPairCollection : IDictionary<string, TradableAssetPairInfo>
+public sealed class TradableAssetPairCollection : IDictionary<string, TradableAssetPairInfo>
 {
     private readonly IDictionary<string, TradableAssetPairInfo> _dictionaryImplementation;
 
@@ -95,13 +95,10 @@ public struct TradableAssetPairCollection : IDictionary<string, TradableAssetPai
 
     #region IDictionary<string,TradableAssetPairInfo> Members
 
-    public int Count => _dictionaryImplementation.Count;
-
-    public bool IsReadOnly => _dictionaryImplementation.IsReadOnly;
-
-    public ICollection<string> Keys => _dictionaryImplementation.Keys;
-
-    public ICollection<TradableAssetPairInfo> Values => _dictionaryImplementation.Values;
+    public int                                Count      => _dictionaryImplementation.Count;
+    public bool                               IsReadOnly => _dictionaryImplementation.IsReadOnly;
+    public ICollection<string>                Keys       => _dictionaryImplementation.Keys;
+    public ICollection<TradableAssetPairInfo> Values     => _dictionaryImplementation.Values;
 
     public TradableAssetPairInfo this[string key]
     {
@@ -142,13 +139,11 @@ public struct TradableAssetPairResponse
     [JsonConstructor]
     public TradableAssetPairResponse(Error[] error, TradableAssetPairCollection tradableAssetPairCollection)
     {
-        Error = error;
+        Error                       = error;
         TradableAssetPairCollection = tradableAssetPairCollection;
     }
 
-    [JsonPropertyName("error")]
-    public Error[] Error { get; set; }
+    [JsonPropertyName("error")] public Error[] Error { get; set; }
 
-    [JsonPropertyName("result")]
-    public TradableAssetPairCollection TradableAssetPairCollection { get; set; }
+    [JsonPropertyName("result")] public TradableAssetPairCollection TradableAssetPairCollection { get; set; }
 }

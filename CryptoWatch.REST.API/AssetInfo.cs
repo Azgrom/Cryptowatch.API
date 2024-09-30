@@ -15,29 +15,23 @@ public struct AssetInfo
         string status
     )
     {
-        Decimals = decimals;
+        Decimals        = decimals;
         DisplayDecimals = displayDecimals;
         CollateralValue = collateralValue;
-        Aclass = aclass;
-        Altname = altname;
-        Status = status;
+        Aclass          = aclass;
+        Altname         = altname;
+        Status          = status;
     }
 
-    [JsonPropertyName("decimals")]
-    public int Decimals { get; set; }
-    [JsonPropertyName("display_decimals")]
-    public int DisplayDecimals { get; set; }
-    [JsonPropertyName("collateral_value")]
-    public int CollateralValue { get; set; }
-    [JsonPropertyName("aclass")]
-    public string Aclass { get; set; }
-    [JsonPropertyName("altname")]
-    public string Altname { get; set; }
-    [JsonPropertyName("status")]
-    public string Status { get; set; }
+    [JsonPropertyName("decimals")]         public int    Decimals        { get; set; }
+    [JsonPropertyName("display_decimals")] public int    DisplayDecimals { get; set; }
+    [JsonPropertyName("collateral_value")] public int    CollateralValue { get; set; }
+    [JsonPropertyName("aclass")]           public string Aclass          { get; set; }
+    [JsonPropertyName("altname")]          public string Altname         { get; set; }
+    [JsonPropertyName("status")]           public string Status          { get; set; }
 }
 
-public struct AssetInfoCollection : IDictionary<string, AssetInfo>
+public sealed class AssetInfoCollection : IDictionary<string, AssetInfo>
 {
     private readonly IDictionary<string, AssetInfo> _dictionaryImplementation;
 
@@ -47,10 +41,11 @@ public struct AssetInfoCollection : IDictionary<string, AssetInfo>
 
     #region IDictionary<string,AssetInfo> Members
 
-    public int Count => _dictionaryImplementation.Count;
-    public bool IsReadOnly => _dictionaryImplementation.IsReadOnly;
-    public ICollection<string> Keys => _dictionaryImplementation.Keys;
-    public ICollection<AssetInfo> Values => _dictionaryImplementation.Values;
+    public int                    Count      => _dictionaryImplementation.Count;
+    public bool                   IsReadOnly => _dictionaryImplementation.IsReadOnly;
+    public ICollection<string>    Keys       => _dictionaryImplementation.Keys;
+    public ICollection<AssetInfo> Values     => _dictionaryImplementation.Values;
+
     public AssetInfo this[string key]
     {
         get => _dictionaryImplementation[key];
@@ -88,10 +83,10 @@ public struct AssetInfoResponse
     [JsonConstructor]
     public AssetInfoResponse(Error[] error, AssetInfoCollection assetInfoCollection)
     {
-        Error = error;
+        Error               = error;
         AssetInfoCollection = assetInfoCollection;
     }
 
-    [JsonPropertyName("error")] public Error[] Error { get; set; }
+    [JsonPropertyName("error")]  public Error[]             Error               { get; set; }
     [JsonPropertyName("result")] public AssetInfoCollection AssetInfoCollection { get; set; }
 }

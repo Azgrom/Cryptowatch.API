@@ -7,8 +7,7 @@ public class CryptoWatchRestApi
     public const     string     RootUrl = "https://api.cryptowat.ch";
     private readonly HttpClient _httpClient;
 
-    public CryptoWatchRestApi(HttpClient httpClient) =>
-        _httpClient = httpClient;
+    public CryptoWatchRestApi(HttpClient httpClient) => _httpClient = httpClient;
 
     public AssetsApi    Assets    => new(_httpClient);
     public PairsApi     Pairs     => new(_httpClient);
