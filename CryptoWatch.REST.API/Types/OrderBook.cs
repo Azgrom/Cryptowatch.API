@@ -7,25 +7,25 @@ public readonly struct OrderBook
     [JsonConstructor]
     public OrderBook(ResultDetail result, Allowance allowance)
     {
-        Result = result;
+        Result    = result;
         Allowance = allowance;
     }
 
-    [JsonPropertyName("result")] public ResultDetail Result { get; }
-    [JsonPropertyName("allowance")] public Allowance Allowance { get; }
+    [JsonPropertyName("result")]    public ResultDetail Result    { get; }
+    [JsonPropertyName("allowance")] public Allowance    Allowance { get; }
 
     public readonly struct ResultDetail
     {
         [JsonConstructor]
         public ResultDetail(double[][] asks, double[][] bids, long sequenceNumber)
         {
-            Asks = asks;
-            Bids = bids;
+            Asks           = asks;
+            Bids           = bids;
             SequenceNumber = sequenceNumber;
         }
 
-        [JsonPropertyName("asks")] public double[][] Asks { get; }
-        [JsonPropertyName("bids")] public double[][] Bids { get; }
-        [JsonPropertyName("seqNum")] public long SequenceNumber { get; }
+        [JsonPropertyName("asks")]   public double[][] Asks           { get; }
+        [JsonPropertyName("bids")]   public double[][] Bids           { get; }
+        [JsonPropertyName("seqNum")] public long       SequenceNumber { get; }
     }
 }

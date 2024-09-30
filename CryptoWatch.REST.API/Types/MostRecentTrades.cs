@@ -10,15 +10,16 @@ public readonly struct MostRecentTrades
     [JsonConstructor]
     public MostRecentTrades(decimal[][] result, Allowance allowance)
     {
-        Result = result;
+        Result    = result;
         Allowance = allowance;
     }
 
     [JsonPropertyName("allowance")] public Allowance Allowance { get; }
 
     [JsonIgnore]
-    public RecentTrade[] RecentTrades => Result.Select(x => new RecentTrade(x))
-        .ToArray();
+    public RecentTrade[] RecentTrades =>
+        Result.Select(x => new RecentTrade(x))
+            .ToArray();
 
     [JsonIgnore] public RecentTrade this[int index] => new(Result[index]);
     [JsonIgnore] public int Count => Result.Length;

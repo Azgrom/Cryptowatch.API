@@ -62,45 +62,45 @@
     <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"
                 id="root"
                 xmlns="">
-        <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
         <xsd:element name="root" msdata:IsDataSet="true">
             <xsd:complexType>
                 <xsd:choice maxOccurs="unbounded">
                     <xsd:element name="metadata">
                         <xsd:complexType>
                             <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
                             </xsd:sequence>
-                            <xsd:attribute name="name" use="required" type="xsd:string" />
-                            <xsd:attribute name="type" type="xsd:string" />
-                            <xsd:attribute name="mimetype" type="xsd:string" />
-                            <xsd:attribute ref="xml:space" />
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="assembly">
                         <xsd:complexType>
-                            <xsd:attribute name="alias" type="xsd:string" />
-                            <xsd:attribute name="name" type="xsd:string" />
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="data">
                         <xsd:complexType>
                             <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
                             </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-                            <xsd:attribute ref="xml:space" />
+                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="resheader">
                         <xsd:complexType>
                             <xsd:sequence>
-                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
                             </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" use="required" />
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
                         </xsd:complexType>
                     </xsd:element>
                 </xsd:choice>
@@ -12061,6 +12061,367 @@
   "allowance": {
     "cost": 0.015,
     "remaining": 9.985,
+    "upgrade": "For unlimited API access, create an account at https://cryptowat.ch"
+  }
+}</value>
+    </data>
+    <data name="ExchangeMarkets" xml:space="preserve">
+      <value>{
+  "result": [
+    {
+      "id": 148,
+      "exchange": "wex",
+      "pair": "btcusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/btcusd"
+    },
+    {
+      "id": 149,
+      "exchange": "wex",
+      "pair": "btceur",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/btceur"
+    },
+    {
+      "id": 150,
+      "exchange": "wex",
+      "pair": "btcrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/btcrub"
+    },
+    {
+      "id": 151,
+      "exchange": "wex",
+      "pair": "ltcusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ltcusd"
+    },
+    {
+      "id": 152,
+      "exchange": "wex",
+      "pair": "ltcbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ltcbtc"
+    },
+    {
+      "id": 153,
+      "exchange": "wex",
+      "pair": "nmcusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/nmcusd"
+    },
+    {
+      "id": 154,
+      "exchange": "wex",
+      "pair": "ppcusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ppcusd"
+    },
+    {
+      "id": 155,
+      "exchange": "wex",
+      "pair": "ethbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ethbtc"
+    },
+    {
+      "id": 156,
+      "exchange": "wex",
+      "pair": "ethusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ethusd"
+    },
+    {
+      "id": 157,
+      "exchange": "wex",
+      "pair": "etheur",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/etheur"
+    },
+    {
+      "id": 158,
+      "exchange": "wex",
+      "pair": "ethltc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ethltc"
+    },
+    {
+      "id": 159,
+      "exchange": "wex",
+      "pair": "ethrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ethrub"
+    },
+    {
+      "id": 160,
+      "exchange": "wex",
+      "pair": "bchusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bchusd"
+    },
+    {
+      "id": 161,
+      "exchange": "wex",
+      "pair": "bchbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bchbtc"
+    },
+    {
+      "id": 162,
+      "exchange": "wex",
+      "pair": "zecbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/zecbtc"
+    },
+    {
+      "id": 163,
+      "exchange": "wex",
+      "pair": "zecusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/zecusd"
+    },
+    {
+      "id": 164,
+      "exchange": "wex",
+      "pair": "dashbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/dashbtc"
+    },
+    {
+      "id": 165,
+      "exchange": "wex",
+      "pair": "dashusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/dashusd"
+    },
+    {
+      "id": 645,
+      "exchange": "wex",
+      "pair": "ethbch",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ethbch"
+    },
+    {
+      "id": 646,
+      "exchange": "wex",
+      "pair": "bcheth",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bcheth"
+    },
+    {
+      "id": 647,
+      "exchange": "wex",
+      "pair": "ltcbch",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ltcbch"
+    },
+    {
+      "id": 648,
+      "exchange": "wex",
+      "pair": "bchltc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bchltc"
+    },
+    {
+      "id": 998,
+      "exchange": "wex",
+      "pair": "usdtusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/usdtusd"
+    },
+    {
+      "id": 4653,
+      "exchange": "wex",
+      "pair": "eurrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/eurrub"
+    },
+    {
+      "id": 4654,
+      "exchange": "wex",
+      "pair": "ppcbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ppcbtc"
+    },
+    {
+      "id": 4655,
+      "exchange": "wex",
+      "pair": "dasheur",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/dasheur"
+    },
+    {
+      "id": 4656,
+      "exchange": "wex",
+      "pair": "dasheth",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/dasheth"
+    },
+    {
+      "id": 4657,
+      "exchange": "wex",
+      "pair": "bchrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bchrub"
+    },
+    {
+      "id": 4658,
+      "exchange": "wex",
+      "pair": "bchdash",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bchdash"
+    },
+    {
+      "id": 4664,
+      "exchange": "wex",
+      "pair": "bcheur",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bcheur"
+    },
+    {
+      "id": 4667,
+      "exchange": "wex",
+      "pair": "eurusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/eurusd"
+    },
+    {
+      "id": 4668,
+      "exchange": "wex",
+      "pair": "dashzec",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/dashzec"
+    },
+    {
+      "id": 4670,
+      "exchange": "wex",
+      "pair": "zecltc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/zecltc"
+    },
+    {
+      "id": 4672,
+      "exchange": "wex",
+      "pair": "ltcrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ltcrub"
+    },
+    {
+      "id": 4673,
+      "exchange": "wex",
+      "pair": "dashltc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/dashltc"
+    },
+    {
+      "id": 4676,
+      "exchange": "wex",
+      "pair": "dashrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/dashrub"
+    },
+    {
+      "id": 4677,
+      "exchange": "wex",
+      "pair": "usdrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/usdrub"
+    },
+    {
+      "id": 4679,
+      "exchange": "wex",
+      "pair": "ethzec",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ethzec"
+    },
+    {
+      "id": 4682,
+      "exchange": "wex",
+      "pair": "ltceur",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/ltceur"
+    },
+    {
+      "id": 4686,
+      "exchange": "wex",
+      "pair": "nmcbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/nmcbtc"
+    },
+    {
+      "id": 4689,
+      "exchange": "wex",
+      "pair": "bchzec",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/bchzec"
+    },
+    {
+      "id": 4791,
+      "exchange": "wex",
+      "pair": "btcusdt",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/btcusdt"
+    },
+    {
+      "id": 4813,
+      "exchange": "wex",
+      "pair": "nvcusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/nvcusd"
+    },
+    {
+      "id": 4814,
+      "exchange": "wex",
+      "pair": "nvcbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/nvcbtc"
+    },
+    {
+      "id": 5046,
+      "exchange": "wex",
+      "pair": "xmrusd",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/xmrusd"
+    },
+    {
+      "id": 5047,
+      "exchange": "wex",
+      "pair": "xmreth",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/xmreth"
+    },
+    {
+      "id": 5048,
+      "exchange": "wex",
+      "pair": "xmrbtc",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/xmrbtc"
+    },
+    {
+      "id": 5049,
+      "exchange": "wex",
+      "pair": "xmrrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/xmrrub"
+    },
+    {
+      "id": 5186,
+      "exchange": "wex",
+      "pair": "zecrub",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/zecrub"
+    },
+    {
+      "id": 5187,
+      "exchange": "wex",
+      "pair": "xmreur",
+      "active": false,
+      "route": "https://api.cryptowat.ch/markets/wex/xmreur"
+    }
+  ],
+  "allowance": {
+    "cost": 0.002,
+    "remaining": 9.958,
     "upgrade": "For unlimited API access, create an account at https://cryptowat.ch"
   }
 }</value>

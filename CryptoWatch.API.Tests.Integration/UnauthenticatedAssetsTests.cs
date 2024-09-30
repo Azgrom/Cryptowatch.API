@@ -3,13 +3,14 @@ using CryptoWatch.REST.API.Types;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
+using Asset = CryptoWatch.REST.API.Types.Asset;
 
 namespace CryptoWatch.API.Tests.Integration;
 
 public sealed class UnauthenticatedAssetsTests : IAsyncLifetime
 {
     private readonly CryptoWatchServerApi _cryptoWatchServer = new();
-    private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
 
     public UnauthenticatedAssetsTests() =>
         _httpClientFactory.CreateClient(string.Empty)
@@ -20,6 +21,8 @@ public sealed class UnauthenticatedAssetsTests : IAsyncLifetime
                 }
             );
 
+    #region IAsyncLifetime Members
+
     public Task InitializeAsync() => Task.CompletedTask;
 
     public Task DisposeAsync()
@@ -28,6 +31,8 @@ public sealed class UnauthenticatedAssetsTests : IAsyncLifetime
 
         return Task.CompletedTask;
     }
+
+    #endregion
 
     [Fact]
     public async Task Asserts_AssetsDefaultListing_JsonResponseDeserialization()

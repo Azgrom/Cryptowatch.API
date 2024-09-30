@@ -7,12 +7,12 @@ public readonly struct MarketPairPrice
     [JsonConstructor]
     public MarketPairPrice(PriceResult result, Allowance allowance)
     {
-        Result = result;
+        Result    = result;
         Allowance = allowance;
     }
 
-    [JsonPropertyName("result")] public PriceResult Result { get; }
-    [JsonPropertyName("allowance")] public Allowance Allowance { get; }
+    [JsonPropertyName("result")]    public PriceResult Result    { get; }
+    [JsonPropertyName("allowance")] public Allowance   Allowance { get; }
 
     public readonly struct PriceResult
     {

@@ -10,7 +10,7 @@ namespace CryptoWatch.API.Tests.Integration;
 public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
 {
     private readonly CryptoWatchServerApi _cryptoWatchServer = new();
-    private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
 
     public UnauthenticatedMarketsTests() =>
         _httpClientFactory.CreateClient(string.Empty)
@@ -21,6 +21,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
                 }
             );
 
+    #region IAsyncLifetime Members
+
     public Task InitializeAsync() => Task.CompletedTask;
 
     public Task DisposeAsync()
@@ -29,6 +31,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
 
         return Task.CompletedTask;
     }
+
+    #endregion
 
     [Fact]
     public async Task Asserts_MarketsListing_JsonResponseDeserialization()
@@ -175,7 +179,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_SpecificMarketAmountFromCursorListing_JsonResponseDeserialization()
     {
-        const int item = 3;
+        const int    item   = 3;
         const string cursor = "SdgMYB9J1JiK7ejL21NoCqHcRT1eb6tTAIXZ12jGbKzEiPa-xpLZOg";
         _cryptoWatchServer.SetupUnauthenticatedThreeMarketsWithCursorListingRestEndpoint();
 
@@ -225,7 +229,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_PairMarketDetail_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         _cryptoWatchServer.SetupUnauthenticatedPairMarketDetailRestEndpoint();
 
         var marketPairDetail =
@@ -345,7 +349,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_MarketsPricesWithCursorAndLimitOfThree_JsonResponseDeserialization()
     {
-        const int items = 3;
+        const int    items  = 3;
         const string cursor = "BDj0fwwHBUM7Rz4YNJvyhM1vMO5PyygjB-AAht0UbizZZ7_VqEB1JA";
         _cryptoWatchServer.SetupUnauthenticatedMarketsPricesWithCursorAndLimitOfThreeRestEndpoint();
 
@@ -391,7 +395,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_PairMarketPrice_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         _cryptoWatchServer.SetupUnauthenticatedPairMarketDetailPriceRestEndpoint();
 
         var marketPairPrice =
@@ -419,7 +423,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_MostRecentTrades_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         _cryptoWatchServer.SetupUnauthenticatedMarketMostRecentTradesOfAPairRestEndpoint();
 
         var mostRecentTrades =
@@ -468,8 +472,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_MostRecentTradesWithTimestamp_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        const int cursor = 1690337054;
+        const string pair     = "btcusd";
+        const int    cursor   = 1690337054;
         _cryptoWatchServer.SetupUnauthenticatedMarketMostRecentTradesOfAPairWithTimestampRestEndpoint();
 
         var mostRecentTrades =
@@ -518,9 +522,9 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_MostRecentTradesWithTimestampAndLimit_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        const int cursor = 1690337054;
-        const int limit = 5;
+        const string pair     = "btcusd";
+        const int    cursor   = 1690337054;
+        const int    limit    = 5;
         _cryptoWatchServer.SetupUnauthenticatedMarketMostRecentTradesOfAPairWithTimestampAndLimitRestEndpoint();
 
         var mostRecentTrades =
@@ -574,7 +578,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_MarketPairSummary_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         _cryptoWatchServer.SetupUnauthenticatedMarketPairSummaryRestEndpoint();
 
         var marketPairSummary =
@@ -734,7 +738,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_MarketsSummariesFromCursorWithLimitOf3_JsonResponseDeserialization()
     {
-        const int limit = 3;
+        const int    limit  = 3;
         const string cursor = "jYWBofYi7AbqxVQyHC3GQoguYnxKEL2vjPxTCJ3SAZEcXdzN6HDnSw";
         _cryptoWatchServer.SetupUnauthenticatedMarketsSummariesFromCursorWithLimitOf3RestEndpoint();
 
@@ -857,7 +861,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_AllMarketsSummariesByIdFromCursor_JsonResponseDeserialization()
     {
-        const string keyBy = "id";
+        const string keyBy  = "id";
         const string cursor = "gCLPH49ToTXjmDnq2VyXCtu5HtSV__AiJU7XjdF1hAwu48pFj0_G70zdGrrKvg";
         _cryptoWatchServer.SetupUnauthenticatedAllMarketsSummariesByIdFromCursorRestEndpoint();
 
@@ -919,9 +923,9 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_AllMarketsSummariesByIdFromCursorWithLimit_JsonResponseDeserialization()
     {
-        const string keyBy = "id";
+        const string keyBy  = "id";
         const string cursor = "gCLPH49ToTXjmDnq2VyXCtu5HtSV__AiJU7XjdF1hAwu48pFj0_G70zdGrrKvg";
-        const int limit = 3;
+        const int    limit  = 3;
         _cryptoWatchServer.SetupUnauthenticatedAllMarketsSummariesByIdFromCursorWithLimitOf3RestEndpoint();
 
         var marketsSummaries =
@@ -984,7 +988,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOrderBook_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookRestEndpoint();
 
         var krakenBtcUsdOrderBook =
@@ -1020,8 +1024,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOrderBookWithLimitOf3_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        const uint limit = 3;
+        const string pair     = "btcusd";
+        const uint   limit    = 3;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookWithLimitOf3RestEndpoint();
 
         var krakenBtcUsdOrderBook =
@@ -1061,8 +1065,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOrderBookWithDepthOf60_000_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        const double depth = 60_000;
+        const string pair     = "btcusd";
+        const double depth    = 60_000;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookWithDepthOf60_000RestEndpoint();
 
         var krakenBtcUsdOrderBook =
@@ -1102,9 +1106,9 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOrderBookWithDepthOf60_000AndLimitOf7_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        const double depth = 60_000;
-        const uint limit = 7;
+        const string pair     = "btcusd";
+        const double depth    = 60_000;
+        const uint   limit    = 7;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookWithDepthOf60_000AndLimitOf7RestEndpoint();
 
         var krakenBtcUsdOrderBook =
@@ -1144,9 +1148,9 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_KrakenBtcUsdOrderBookWithSpanOfDot875_JsonResponseDeserialization()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        const decimal span = 0.875M;
+        const string  exchange = "kraken";
+        const string  pair     = "btcusd";
+        const decimal span     = 0.875M;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookWithSpanOfDot875RestEndpoint();
 
         var krakenBtcUsdOrderBook =
@@ -1182,10 +1186,10 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_KrakenBtcUsdOrderBookWithSpanOfDot875AndLimitOf5_JsonResponseDeserialization()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        const decimal span = 0.875M;
-        const uint limit = 5;
+        const string  exchange = "kraken";
+        const string  pair     = "btcusd";
+        const decimal span     = 0.875M;
+        const uint    limit    = 5;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookWithSpanOfDot875RestEndpoint();
 
         var krakenBtcUsdOrderBook =
@@ -1225,10 +1229,10 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_KrakenBtcUsdOrderBookWithSpanOfDot875AndDepthOf13_000_JsonResponseDeserialization()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        const double depth = 13_000;
-        const decimal span = 0.875M;
+        const string  exchange = "kraken";
+        const string  pair     = "btcusd";
+        const double  depth    = 13_000;
+        const decimal span     = 0.875M;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookWithSpanOfDot875AndDepthOf13_000RestEndpoint();
 
         var krakenBtcUsdOrderBook =
@@ -1269,11 +1273,11 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task
         Asserts_KrakenBtcUsdOrderBookWithSpanOfDot875AndDepthOf13_000AndLimitOf11_JsonResponseDeserialization()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        const double depth = 13_000;
-        const decimal span = 0.875M;
-        const uint limit = 11;
+        const string  exchange = "kraken";
+        const string  pair     = "btcusd";
+        const double  depth    = 13_000;
+        const decimal span     = 0.875M;
+        const uint    limit    = 11;
         _cryptoWatchServer
             .SetupUnauthenticatedKrakenUsdBtcOrderBookWithSpanOfDot875AndDepthOf13AndLimitOf11_000RestEndpoint();
 
@@ -1316,7 +1320,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOrderBookLiquidity_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookLiquidity_000RestEndpoint();
 
         var krakenBtcUsdOrderBookLiquidity =
@@ -1363,8 +1367,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOrderBookCalculator_JsonResponseDeserialization()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        const double amount = 3.7;
+        const string pair     = "btcusd";
+        const double amount   = 3.7;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOrderBookCalculator_000RestEndpoint();
 
         var orderBookCalculatorAsync =
@@ -1421,7 +1425,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOHLCCandlestick_JsonDeserializationResponse()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOHLCRestEndpoint();
 
         var ohlcCandlesticks =
@@ -1495,8 +1499,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_KrakenBtcUsdFiveMinuteOHLCCandlestick_JsonDeserializationResponse()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string    exchange  = "kraken";
+        const string    pair      = "btcusd";
         const TimeFrame timeFrame = TimeFrame.min5;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcFiveMinuteOHLCRestEndpoint();
 
@@ -1562,8 +1566,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOHLCCandlestickAfter01_01_2023Long_JsonDeserializationResponse()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        const int after = 1672610151;
+        const string pair     = "btcusd";
+        const int    after    = 1672610151;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOHLCAfter01_01_2023RestEndpoint();
 
         var ohlcCandlesticks =
@@ -1639,8 +1643,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task Asserts_KrakenBtcUsdOHLCCandlestickAfter01_01_2023DateTimeOffset_JsonDeserializationResponse()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
-        var after = DateTimeOffset.FromUnixTimeSeconds(1672610151);
+        const string pair     = "btcusd";
+        var          after    = DateTimeOffset.FromUnixTimeSeconds(1672610151);
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOHLCAfter01_01_2023RestEndpoint();
 
         var ohlcCandlesticks =
@@ -1715,9 +1719,9 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_KrakenBtcUsdOneMinuteOHLCCandlestickAfter01_01_2023Long_JsonDeserializationResponse()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        const int after = 1672610151;
+        const string    exchange  = "kraken";
+        const string    pair      = "btcusd";
+        const int       after     = 1672610151;
         const TimeFrame timeFrame = TimeFrame.min1;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOneMinuteOHLCAfter01_01_2023RestEndpoint();
 
@@ -1787,9 +1791,9 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task
         Asserts_KrakenBtcUsdOneMinuteOHLCCandlestickAfter01_01_2023DateTimeOffset_JsonDeserializationResponse()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        var after = DateTimeOffset.FromUnixTimeSeconds(1672610151);
+        const string    exchange  = "kraken";
+        const string    pair      = "btcusd";
+        var             after     = DateTimeOffset.FromUnixTimeSeconds(1672610151);
         const TimeFrame timeFrame = TimeFrame.min1;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOneMinuteOHLCAfter01_01_2023RestEndpoint();
 
@@ -1859,10 +1863,10 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     public async Task
         Asserts_KrakenBtcUsdOneHourOHLCCandlestickAfter01_01_2023Before02_01_2023Long_JsonDeserializationResponse()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        const int after = 1672531200;
-        const int before = 1672617600;
+        const string    exchange  = "kraken";
+        const string    pair      = "btcusd";
+        const int       after     = 1672531200;
+        const int       before    = 1672617600;
         const TimeFrame timeFrame = TimeFrame.h1;
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcOneHourOHLCAfter01_01_2023Before02_01_2023RestEndpoint();
 
@@ -1934,7 +1938,7 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
         Asserts_KrakenBtcUsdOneHourOHLCCandlestickAfter01_01_2023Before02_01_2023DateTimeOffset_JsonDeserializationResponse()
     {
         const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string pair     = "btcusd";
         var after =
             new DateTimeOffset(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddSeconds(1672531200);
         var before =
@@ -2008,9 +2012,9 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_KrakenBtcUsdFiveMinuteTwoHourOHLCCandlestick_JsonDeserializationResponse()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
-        var timeFrame = new[] { TimeFrame.min5, TimeFrame.h2 };
+        const string exchange  = "kraken";
+        const string pair      = "btcusd";
+        var          timeFrame = new[] { TimeFrame.min5, TimeFrame.h2 };
         _cryptoWatchServer.SetupUnauthenticatedKrakenUsdBtcFiveMinuteTwoHourOHLCRestEndpoint();
 
         var ohlcCandlesticks =
@@ -2079,8 +2083,8 @@ public sealed class UnauthenticatedMarketsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_InvalidKrakenBtcUsdOHLCCandlestick_JsonDeserializationResponse()
     {
-        const string exchange = "kraken";
-        const string pair = "btcusd";
+        const string    exchange  = "kraken";
+        const string    pair      = "btcusd";
         const TimeFrame timeFrame = TimeFrame.min5;
         _cryptoWatchServer.SetupUnauthenticatedInvalidKrakenUsdBtcOHLCRestEndpoint();
 

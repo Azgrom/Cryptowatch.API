@@ -8,10 +8,10 @@ namespace CryptoWatch.API.Tests.Integration;
 
 public sealed class CryptoWatchServerApi : IDisposable
 {
-    private const string AssetsRoute = "/assets";
+    private const string AssetsRoute    = "/assets";
     private const string ExchangesRoute = "/exchanges";
-    private const string MarketsRoute = "/markets";
-    private const string PairsRoute = "/pairs";
+    private const string MarketsRoute   = "/markets";
+    private const string PairsRoute     = "/pairs";
 
     private static readonly Dictionary<string, string> DefaultCurlHeaders = new()
     {
@@ -43,11 +43,15 @@ public sealed class CryptoWatchServerApi : IDisposable
 
     public string Url => _wireMockServer.Url!;
 
+    #region IDisposable Members
+
     public void Dispose()
     {
         _wireMockServer.Stop();
         _wireMockServer.Dispose();
     }
+
+    #endregion
 
     public void SetupHeaderAuthenticatedAssetsDefaultListingRestEndpoint() =>
         _wireMockServer.Given(
@@ -248,7 +252,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath(MarketsRoute)
-                    .WithParam("limit", "3")
+                    .WithParam("limit",  "3")
                     .WithParam("cursor", "SdgMYB9J1JiK7ejL21NoCqHcRT1eb6tTAIXZ12jGbKzEiPa-xpLZOg")
             )
             .RespondWith(
@@ -317,7 +321,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/prices")
                     .WithParam("cursor", "BDj0fwwHBUM7Rz4YNJvyhM1vMO5PyygjB-AAht0UbizZZ7_VqEB1JA")
-                    .WithParam("limit", "3")
+                    .WithParam("limit",  "3")
             )
             .RespondWith(
                 Response.Create()
@@ -417,7 +421,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/summaries")
                     .WithParam("cursor", "jYWBofYi7AbqxVQyHC3GQoguYnxKEL2vjPxTCJ3SAZEcXdzN6HDnSw")
-                    .WithParam("limit", "3")
+                    .WithParam("limit",  "3")
             )
             .RespondWith(
                 Response.Create()
@@ -445,7 +449,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/summaries")
-                    .WithParam("keyBy", "id")
+                    .WithParam("keyBy",  "id")
                     .WithParam("cursor", "gCLPH49ToTXjmDnq2VyXCtu5HtSV__AiJU7XjdF1hAwu48pFj0_G70zdGrrKvg")
             )
             .RespondWith(
@@ -460,9 +464,9 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/summaries")
-                    .WithParam("keyBy", "id")
+                    .WithParam("keyBy",  "id")
                     .WithParam("cursor", "gCLPH49ToTXjmDnq2VyXCtu5HtSV__AiJU7XjdF1hAwu48pFj0_G70zdGrrKvg")
-                    .WithParam("limit", "3")
+                    .WithParam("limit",  "3")
             )
             .RespondWith(
                 Response.Create()
@@ -549,7 +553,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/kraken/btcusd/orderbook")
-                    .WithParam("span", "0.875")
+                    .WithParam("span",  "0.875")
                     .WithParam("depth", "13000")
             )
             .RespondWith(
@@ -567,7 +571,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/kraken/btcusd/orderbook")
-                    .WithParam("span", "0.875")
+                    .WithParam("span",  "0.875")
                     .WithParam("depth", "13000")
                     .WithParam("limit", "11")
             )
@@ -654,7 +658,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/kraken/btcusd/ohlc")
-                    .WithParam("after", "1672610151")
+                    .WithParam("after",   "1672610151")
                     .WithParam("periods", "60")
             )
             .RespondWith(
@@ -669,8 +673,8 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath($"{MarketsRoute}/kraken/btcusd/ohlc")
-                    .WithParam("before", "1672617600")
-                    .WithParam("after", "1672531200")
+                    .WithParam("before",  "1672617600")
+                    .WithParam("after",   "1672531200")
                     .WithParam("periods", "3600")
             )
             .RespondWith(
@@ -757,7 +761,7 @@ public sealed class CryptoWatchServerApi : IDisposable
                 Request.Create()
                     .UsingGet()
                     .WithPath(PairsRoute)
-                    .WithParam("limit", "2")
+                    .WithParam("limit",  "2")
                     .WithParam("cursor", "S_v4gQoCByt1snk8oSuh670Q_QU1ZRSDlA9igxjER8lWsXXj6geogA")
             )
             .RespondWith(

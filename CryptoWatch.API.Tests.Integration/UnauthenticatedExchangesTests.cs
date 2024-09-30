@@ -9,7 +9,7 @@ namespace CryptoWatch.API.Tests.Integration;
 public sealed class UnauthenticatedExchangesTests : IAsyncLifetime
 {
     private readonly CryptoWatchServerApi _cryptoWatchServer = new();
-    private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
 
     public UnauthenticatedExchangesTests() =>
         _httpClientFactory.CreateClient(string.Empty)
@@ -20,6 +20,8 @@ public sealed class UnauthenticatedExchangesTests : IAsyncLifetime
                 }
             );
 
+    #region IAsyncLifetime Members
+
     public Task InitializeAsync() => Task.CompletedTask;
 
     public Task DisposeAsync()
@@ -28,6 +30,8 @@ public sealed class UnauthenticatedExchangesTests : IAsyncLifetime
 
         return Task.CompletedTask;
     }
+
+    #endregion
 
     [Fact]
     public async Task Asserts_ExchangesListing_JsonResponseDeserialization()

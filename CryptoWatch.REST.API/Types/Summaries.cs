@@ -7,31 +7,37 @@ public readonly struct Summaries
     [JsonConstructor]
     public Summaries(Dictionary<string, ResultDetail> result, Allowance allowance, Cursor cursor)
     {
-        Result = result;
+        Result    = result;
         Allowance = allowance;
-        Cursor = cursor;
+        Cursor    = cursor;
     }
 
-    [JsonPropertyName("result")] public Dictionary<string, ResultDetail> Result { get; }
-    [JsonPropertyName("allowance")] public Allowance Allowance { get; }
-    [JsonPropertyName("cursor")] public Cursor Cursor { get; }
+    [JsonPropertyName("result")]    public Dictionary<string, ResultDetail> Result    { get; }
+    [JsonPropertyName("allowance")] public Allowance                        Allowance { get; }
+    [JsonPropertyName("cursor")]    public Cursor                           Cursor    { get; }
 
     public readonly struct ResultDetail
     {
         [JsonConstructor]
-        public ResultDetail(Price price, double volume, double volumeBase, double volumeQuote, double volumeUsd)
+        public ResultDetail(
+            Price  price,
+            double volume,
+            double volumeBase,
+            double volumeQuote,
+            double volumeUsd
+        )
         {
-            Price = price;
-            Volume = volume;
-            VolumeBase = volumeBase;
+            Price       = price;
+            Volume      = volume;
+            VolumeBase  = volumeBase;
             VolumeQuote = volumeQuote;
-            VolumeUsd = volumeUsd;
+            VolumeUsd   = volumeUsd;
         }
 
-        public Price Price { get; }
-        public double Volume { get; }
-        public double VolumeBase { get; }
+        public Price  Price       { get; }
+        public double Volume      { get; }
+        public double VolumeBase  { get; }
         public double VolumeQuote { get; }
-        public double VolumeUsd { get; }
+        public double VolumeUsd   { get; }
     }
 }

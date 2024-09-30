@@ -7,12 +7,12 @@ public readonly struct OrderBookLiquidity
     [JsonConstructor]
     public OrderBookLiquidity(ResultDetails result, Allowance allowance)
     {
-        Result = result;
+        Result    = result;
         Allowance = allowance;
     }
 
-    [JsonPropertyName("result")] public ResultDetails Result { get; }
-    [JsonPropertyName("allowance")] public Allowance Allowance { get; }
+    [JsonPropertyName("result")]    public ResultDetails Result    { get; }
+    [JsonPropertyName("allowance")] public Allowance     Allowance { get; }
 
     public readonly struct ResultDetails
     {

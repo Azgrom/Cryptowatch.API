@@ -5,7 +5,7 @@ namespace CryptoWatch.REST.API.Paths;
 
 public readonly struct AssetsApi
 {
-    private const string Route = "/assets";
+    private const    string     Route = "/assets";
     private readonly HttpClient _httpClient;
 
     internal AssetsApi(HttpClient httpClient) => _httpClient = httpClient;

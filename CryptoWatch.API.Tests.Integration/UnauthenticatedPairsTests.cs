@@ -3,13 +3,14 @@ using CryptoWatch.REST.API.Types;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
+using Asset = CryptoWatch.REST.API.Types.Asset;
 
 namespace CryptoWatch.API.Tests.Integration;
 
 public sealed class UnauthenticatedPairsTests : IAsyncLifetime
 {
     private readonly CryptoWatchServerApi _cryptoWatchServer = new();
-    private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
 
     public UnauthenticatedPairsTests() =>
         _httpClientFactory.CreateClient(string.Empty)
@@ -20,6 +21,8 @@ public sealed class UnauthenticatedPairsTests : IAsyncLifetime
                 }
             );
 
+    #region IAsyncLifetime Members
+
     public Task InitializeAsync() => Task.CompletedTask;
 
     public Task DisposeAsync()
@@ -28,6 +31,8 @@ public sealed class UnauthenticatedPairsTests : IAsyncLifetime
 
         return Task.CompletedTask;
     }
+
+    #endregion
 
     [Fact]
     public async Task Asserts_PairsDefaultListing_JsonResponseDeserialization()
@@ -275,7 +280,7 @@ public sealed class UnauthenticatedPairsTests : IAsyncLifetime
     public async Task
         Asserts_PairsSpecificAmountWithCursorListing_JsonResponseDeserialization()
     {
-        const int items = 2;
+        const int    items  = 2;
         const string cursor = "S_v4gQoCByt1snk8oSuh670Q_QU1ZRSDlA9igxjER8lWsXXj6geogA";
 
         _cryptoWatchServer.SetupUnauthenticatedPairsSpecificAmountWithCursorListingRestEndpoint();

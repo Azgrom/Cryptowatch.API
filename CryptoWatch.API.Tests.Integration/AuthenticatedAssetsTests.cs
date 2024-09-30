@@ -3,23 +3,26 @@ using CryptoWatch.REST.API.Types;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
+using Asset = CryptoWatch.REST.API.Types.Asset;
 
 namespace CryptoWatch.API.Tests.Integration;
 
 public sealed class AuthenticatedAssetsTests : IAsyncLifetime
 {
     private readonly CryptoWatchServerApi _cryptoWatchServer = new();
-    private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
 
     public AuthenticatedAssetsTests() =>
         _httpClientFactory.CreateClient(string.Empty)
             .Returns(
                 new HttpClient
                 {
-                    BaseAddress = new Uri(_cryptoWatchServer.Url),
+                    BaseAddress           = new Uri(_cryptoWatchServer.Url),
                     DefaultRequestHeaders = { { "X-CW-API-Key", "CXRJ2EJTOLGUF4RNY4CF" } }
                 }
             );
+
+    #region IAsyncLifetime Members
 
     public Task InitializeAsync() => Task.CompletedTask;
 
@@ -29,6 +32,8 @@ public sealed class AuthenticatedAssetsTests : IAsyncLifetime
 
         return Task.CompletedTask;
     }
+
+    #endregion
 
     [Fact]
     public async Task Asserts_AssetsDefaultListing_JsonResponseDeserialization()
@@ -202,7 +207,7 @@ public sealed class AuthenticatedAssetsTests : IAsyncLifetime
     [Fact]
     public async Task Asserts_AssetSpecificAmountDetailListing_JsonResponseDeserialization()
     {
-        const int items = 5;
+        const int    items = 5;
         const string asset = "btc";
         _cryptoWatchServer.SetupHeaderAuthenticatedAssetSpecificAmountDetailRestEndpoint();
 
@@ -283,7 +288,7 @@ public sealed class AuthenticatedAssetsTests : IAsyncLifetime
             .Returns(
                 new HttpClient
                 {
-                    BaseAddress = new Uri(_cryptoWatchServer.Url),
+                    BaseAddress           = new Uri(_cryptoWatchServer.Url),
                     DefaultRequestHeaders = { { "X-CW-API-Key", "---" } }
                 }
             );
@@ -303,7 +308,7 @@ public sealed class AuthenticatedAssetsTests : IAsyncLifetime
             .Returns(
                 new HttpClient
                 {
-                    BaseAddress = new Uri(_cryptoWatchServer.Url),
+                    BaseAddress           = new Uri(_cryptoWatchServer.Url),
                     DefaultRequestHeaders = { { "X-CW-API-Key", "---" } }
                 }
             );

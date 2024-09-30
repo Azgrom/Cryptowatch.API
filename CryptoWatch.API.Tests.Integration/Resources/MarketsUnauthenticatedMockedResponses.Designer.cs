@@ -255,5 +255,11 @@ namespace CryptoWatch.API.Tests.Integration.Resources {
                 return ResourceManager.GetString("InvalidTimeFrameKrakenBtcUsdOHLCResponse", resourceCulture);
             }
         }
+        
+        internal static string ExchangeMarkets {
+            get {
+                return ResourceManager.GetString("ExchangeMarkets", resourceCulture);
+            }
+        }
     }
 }

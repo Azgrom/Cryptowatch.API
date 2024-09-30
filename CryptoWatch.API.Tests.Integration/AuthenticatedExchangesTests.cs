@@ -9,17 +9,19 @@ namespace CryptoWatch.API.Tests.Integration;
 public sealed class AuthenticatedExchangesTests : IAsyncLifetime
 {
     private readonly CryptoWatchServerApi _cryptoWatchServer = new();
-    private readonly IHttpClientFactory _httpClientFactory = Substitute.For<IHttpClientFactory>();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
 
     public AuthenticatedExchangesTests() =>
         _httpClientFactory.CreateClient(string.Empty)
             .Returns(
                 new HttpClient
                 {
-                    BaseAddress = new Uri(_cryptoWatchServer.Url),
+                    BaseAddress           = new Uri(_cryptoWatchServer.Url),
                     DefaultRequestHeaders = { { "X-CW-API-Key", "CXRJ2EJTOLGUF4RNY4CF" } }
                 }
             );
+
+    #region IAsyncLifetime Members
 
     public Task InitializeAsync() => Task.CompletedTask;
 
@@ -29,6 +31,8 @@ public sealed class AuthenticatedExchangesTests : IAsyncLifetime
 
         return Task.CompletedTask;
     }
+
+    #endregion
 
     [Fact]
     public async Task Asserts_ExchangesListing_JsonResponseDeserialization()

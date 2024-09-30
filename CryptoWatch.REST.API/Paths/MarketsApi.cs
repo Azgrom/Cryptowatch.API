@@ -6,7 +6,7 @@ namespace CryptoWatch.REST.API.Paths;
 
 public readonly struct MarketsApi
 {
-    private const string Route = "/markets";
+    private const    string     Route = "/markets";
     private readonly HttpClient _httpClient;
 
     internal MarketsApi(HttpClient httpClient) => _httpClient = httpClient;
@@ -27,8 +27,8 @@ public readonly struct MarketsApi
         _httpClient.GetFromJsonAsync<MarketCollection>($"{Route}?cursor={cursor}&limit={limit}", cancellationToken);
 
     public Task<MarketPairDetail> DetailsAsync(
-        string exchange,
-        string pair,
+        string            exchange,
+        string            pair,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<MarketPairDetail>($"{Route}/{exchange}/{pair}", cancellationToken);
@@ -43,23 +43,23 @@ public readonly struct MarketsApi
         _httpClient.GetFromJsonAsync<MarketPrices>($"{Route}/prices?cursor={cursor}&limit={limit}", cancellationToken);
 
     public Task<MarketPairPrice> PriceAsync(
-        string exchange,
-        string pair,
+        string            exchange,
+        string            pair,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<MarketPairPrice>($"{Route}/{exchange}/{pair}/price", cancellationToken);
 
     public Task<MostRecentTrades> TradesAsync(
-        string exchange,
-        string pair,
+        string            exchange,
+        string            pair,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<MostRecentTrades>($"{Route}/{exchange}/{pair}/trades", cancellationToken);
 
     public Task<MostRecentTrades> TradesAsync(
-        string exchange,
-        string pair,
-        uint since,
+        string            exchange,
+        string            pair,
+        uint              since,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<MostRecentTrades>(
@@ -68,10 +68,10 @@ public readonly struct MarketsApi
         );
 
     public Task<MostRecentTrades> TradesAsync(
-        string exchange,
-        string pair,
-        int since,
-        uint limit,
+        string            exchange,
+        string            pair,
+        int               since,
+        uint              limit,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<MostRecentTrades>(
@@ -98,9 +98,9 @@ public readonly struct MarketsApi
         _httpClient.GetFromJsonAsync<Summaries>($"{Route}/summaries?keyBy={keyBy}&cursor={cursor}", cancellationToken);
 
     public Task<Summaries> SummariesAsync(
-        string keyBy,
-        string cursor,
-        uint limit,
+        string            keyBy,
+        string            cursor,
+        uint              limit,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<Summaries>(
@@ -109,16 +109,16 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
+        string            exchange,
+        string            pair,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>($"{Route}/{exchange}/{pair}/orderbook", cancellationToken);
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
-        uint limit,
+        string            exchange,
+        string            pair,
+        uint              limit,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>(
@@ -127,9 +127,9 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
-        double depth,
+        string            exchange,
+        string            pair,
+        double            depth,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>(
@@ -138,10 +138,10 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
-        double depth,
-        uint limit,
+        string            exchange,
+        string            pair,
+        double            depth,
+        uint              limit,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>(
@@ -150,18 +150,18 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
-        decimal span,
+        string            exchange,
+        string            pair,
+        decimal           span,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>($"{Route}/{exchange}/{pair}/orderbook?span={span}", cancellationToken);
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
-        decimal span,
-        uint limit,
+        string            exchange,
+        string            pair,
+        decimal           span,
+        uint              limit,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>(
@@ -170,10 +170,10 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
-        double depth,
-        decimal span,
+        string            exchange,
+        string            pair,
+        double            depth,
+        decimal           span,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>(
@@ -182,11 +182,11 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBook> OrderBookAsync(
-        string exchange,
-        string pair,
-        double depth,
-        decimal span,
-        uint limit,
+        string            exchange,
+        string            pair,
+        double            depth,
+        decimal           span,
+        uint              limit,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBook>(
@@ -195,8 +195,8 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBookLiquidity> OrderBookLiquidityAsync(
-        string exchange,
-        string pair,
+        string            exchange,
+        string            pair,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBookLiquidity>(
@@ -205,9 +205,9 @@ public readonly struct MarketsApi
         );
 
     public Task<OrderBookCalculator> OrderBookCalculatorAsync(
-        string exchange,
-        string pair,
-        double amount,
+        string            exchange,
+        string            pair,
+        double            amount,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<OrderBookCalculator>(
@@ -216,16 +216,16 @@ public readonly struct MarketsApi
         );
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
+        string            exchange,
+        string            pair,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<CandlestickHistories>($"{Route}/{exchange}/{pair}/ohlc", cancellationToken);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        long after,
+        string            exchange,
+        string            pair,
+        long              after,
         CancellationToken cancellationToken = default
     ) =>
         _httpClient.GetFromJsonAsync<CandlestickHistories>(
@@ -234,58 +234,58 @@ public readonly struct MarketsApi
         );
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        DateTimeOffset after,
+        string            exchange,
+        string            pair,
+        DateTimeOffset    after,
         CancellationToken cancellationToken = default
     ) =>
         OHLCCandlesticksAsync(exchange, pair, after.ToUnixTimeSeconds(), cancellationToken);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
+        string             exchange,
+        string             pair,
         params TimeFrame[] periods
     ) =>
         OHLCCandlesticksAsync(exchange, pair, CancellationToken.None, periods);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        long after,
+        string             exchange,
+        string             pair,
+        long               after,
         params TimeFrame[] periods
     ) =>
         OHLCCandlesticksAsync(exchange, pair, after, CancellationToken.None, periods);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        DateTimeOffset after,
+        string             exchange,
+        string             pair,
+        DateTimeOffset     after,
         params TimeFrame[] periods
     ) =>
         OHLCCandlesticksAsync(exchange, pair, after, CancellationToken.None, periods);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        long before,
-        long after,
+        string             exchange,
+        string             pair,
+        long               before,
+        long               after,
         params TimeFrame[] periods
     ) =>
         OHLCCandlesticksAsync(exchange, pair, before, after, CancellationToken.None, periods);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        DateTimeOffset before,
-        DateTimeOffset after,
+        string             exchange,
+        string             pair,
+        DateTimeOffset     before,
+        DateTimeOffset     after,
         params TimeFrame[] periods
     ) =>
         OHLCCandlesticksAsync(exchange, pair, before, after, CancellationToken.None, periods);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        CancellationToken cancellationToken = default,
+        string             exchange,
+        string             pair,
+        CancellationToken  cancellationToken = default,
         params TimeFrame[] periods
     ) =>
         _httpClient.GetFromJsonAsync<CandlestickHistories>(
@@ -294,10 +294,10 @@ public readonly struct MarketsApi
         );
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        long after,
-        CancellationToken cancellationToken = default,
+        string             exchange,
+        string             pair,
+        long               after,
+        CancellationToken  cancellationToken = default,
         params TimeFrame[] periods
     ) =>
         _httpClient.GetFromJsonAsync<CandlestickHistories>(
@@ -306,20 +306,20 @@ public readonly struct MarketsApi
         );
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        DateTimeOffset after,
-        CancellationToken cancellationToken = default,
+        string             exchange,
+        string             pair,
+        DateTimeOffset     after,
+        CancellationToken  cancellationToken = default,
         params TimeFrame[] periods
     ) =>
         OHLCCandlesticksAsync(exchange, pair, after.ToUnixTimeSeconds(), cancellationToken, periods);
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        long before,
-        long after,
-        CancellationToken cancellationToken = default,
+        string             exchange,
+        string             pair,
+        long               before,
+        long               after,
+        CancellationToken  cancellationToken = default,
         params TimeFrame[] periods
     ) =>
         _httpClient.GetFromJsonAsync<CandlestickHistories>(
@@ -328,11 +328,11 @@ public readonly struct MarketsApi
         );
 
     public Task<CandlestickHistories> OHLCCandlesticksAsync(
-        string exchange,
-        string pair,
-        DateTimeOffset before,
-        DateTimeOffset after,
-        CancellationToken cancellationToken = default,
+        string             exchange,
+        string             pair,
+        DateTimeOffset     before,
+        DateTimeOffset     after,
+        CancellationToken  cancellationToken = default,
         params TimeFrame[] periods
     ) =>
         OHLCCandlesticksAsync(

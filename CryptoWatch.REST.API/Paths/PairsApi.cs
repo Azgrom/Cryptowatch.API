@@ -5,7 +5,7 @@ namespace CryptoWatch.REST.API.Paths;
 
 public readonly struct PairsApi
 {
-    private const string Route = "/pairs";
+    private const    string     Route = "/pairs";
     private readonly HttpClient _httpClient;
 
     internal PairsApi(HttpClient httpClient) => _httpClient = httpClient;

@@ -108,3 +108,6 @@ GET https://api.cryptowat.ch/markets/kraken/btcusd/ohlc?after=1672542000&before=
 
 ### Detail orderbook in kraken of btcusd OHLC with only 5 minute and 2 hours candles
 GET https://api.cryptowat.ch/markets/kraken/btcusd/ohlc?periods=300,7200
+
+### Detail market exchange
+GET https://api.cryptowat.ch/markets/wex

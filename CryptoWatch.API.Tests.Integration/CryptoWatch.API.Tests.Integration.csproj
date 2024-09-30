@@ -9,13 +9,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.11.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
-        <PackageReference Include="NSubstitute" Version="5.0.0" />
-        <PackageReference Include="WireMock.Net" Version="1.5.34" />
-        <PackageReference Include="WireMock.Net.FluentAssertions" Version="1.5.34" />
-        <PackageReference Include="WireMock.Net.xUnit" Version="1.5.34" />
-        <PackageReference Include="xunit" Version="2.5.0" />
+        <PackageReference Include="FluentAssertions" Version="6.11.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.1"/>
+        <PackageReference Include="NSubstitute" Version="5.0.0"/>
+        <PackageReference Include="WireMock.Net" Version="1.5.34"/>
+        <PackageReference Include="WireMock.Net.FluentAssertions" Version="1.5.34"/>
+        <PackageReference Include="WireMock.Net.xUnit" Version="1.5.34"/>
+        <PackageReference Include="xunit" Version="2.5.0"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CryptoWatch.REST.API\CryptoWatch.REST.API.csproj" />
+        <ProjectReference Include="..\CryptoWatch.REST.API\CryptoWatch.REST.API.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
