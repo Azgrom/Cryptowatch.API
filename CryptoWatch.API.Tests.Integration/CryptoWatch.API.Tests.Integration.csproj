@@ -55,6 +55,10 @@
             <Generator>ResXFileCodeGenerator</Generator>
             <LastGenOutput>ExchangesUnauthenticatedMockedResponses.Designer.cs</LastGenOutput>
         </EmbeddedResource>
+        <EmbeddedResource Update="Resources\MarketDataRestAPI.resx">
+          <Generator>ResXFileCodeGenerator</Generator>
+          <LastGenOutput>MarketDataRestAPI.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
@@ -87,6 +91,11 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>ExchangesUnauthenticatedMockedResponses.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\MarketDataRestAPI.Designer.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>MarketDataRestAPI.resx</DependentUpon>
         </Compile>
     </ItemGroup>
 
