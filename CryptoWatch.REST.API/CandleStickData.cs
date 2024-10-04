@@ -1,21 +1,21 @@
 using System.Collections;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CryptoWatch.REST.API;
 
 public readonly struct CandleStickData : IDictionary<string, double[][]>
 {
-    private readonly IDictionary<string, double[][]> _dictionaryImplementation;
+    [JsonIgnore] private readonly IDictionary<string, double[][]> _dictionaryImplementation;
 
     [JsonConstructor]
-    public CandleStickData(IDictionary<string, double[][]> dictionaryImplementation, int last)
+    public CandleStickData(IDictionary<string, double[][]> dictionaryImplementation, ulong last)
     {
         _dictionaryImplementation = dictionaryImplementation;
         Last                      = last;
     }
 
-    [JsonPropertyName("last")]
-    public int Last { get; }
+    [JsonIgnore] public ulong Last { get; }
 
     [JsonIgnore] public double[][] this[string key]
     {
@@ -52,11 +52,40 @@ public readonly struct CandleStickData : IDictionary<string, double[][]>
     public bool TryGetValue(string key, out double[][] value) => _dictionaryImplementation.TryGetValue(key, out value);
 }
 
-public readonly struct CandleStickResponse
+public struct CandleStickResponse
 {
-    [JsonPropertyName("error")]
-    public Error[] Error { get; }
+    [JsonIgnore] private CandleStickData? _candleStickData;
 
-    [JsonPropertyName("result")]
-    public CandleStickData CandleStickData { get; }
+    [JsonConstructor]
+    public CandleStickResponse(Error[] error, JsonElement candleStickData)
+    {
+        Error                     = error;
+        SerializedCandleStickData = candleStickData;
+    }
+
+    [JsonPropertyName("error")]  public Error[]     Error                     { get; }
+    [JsonPropertyName("result")] public JsonElement SerializedCandleStickData { get; }
+
+    // [JsonIgnore] public CandleStickData CandleStickData
+    // {
+    //     get
+    //     {
+    //         if (_candleStickData is null) _candleStickData = DeserializeCandleStickDataFromJsonElement();
+    //
+    //         return (CandleStickData)_candleStickData;
+    //     }
+    // }
+
+    private CandleStickData DeserializeCandleStickDataFromJsonElement()
+    {
+        var jsonObjectEnumerator = SerializedCandleStickData.EnumerateObject();
+
+        var last = jsonObjectEnumerator.Single(x => x.Name is "last").Value
+            .Deserialize<ulong>();
+        var doublesMap = jsonObjectEnumerator
+            .Where(x => x.Name != "last")
+            .ToDictionary(x => x.Name, x => x.Value.Deserialize<double[][]>());
+
+        return new CandleStickData(doublesMap, last);
+    }
 }
