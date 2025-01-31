@@ -1,0 +1,15 @@
+# Unknown asset pair request with count 3
+GET https://api.kraken.com/0/public/Depth?pair=fdfsdf&count=3
+Accept: application/json
+
+###
+
+# Unknown asset pair request
+GET https://api.kraken.com/0/public/Depth?pair=fdfsdf
+Accept: application/json
+
+###
+
+# Unknown asset pair request
+GET https://api.kraken.com/0/public/Depth?pair=xbtusd
+Accept: application/json
