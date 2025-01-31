@@ -1,0 +1,323 @@
+using Kraken.REST.API;
+using Kraken.REST.API.Types;
+using FluentAssertions;
+using NSubstitute;
+using Xunit;
+using Asset = Kraken.REST.API.Types.Asset;
+
+namespace Kraken.API.Tests.Integration;
+
+public sealed class AuthenticatedAssetsTests : IAsyncLifetime
+{
+    private readonly KrakenRestServerApi _krakenRestServer = new();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
+
+    public AuthenticatedAssetsTests() =>
+        _httpClientFactory.CreateClient(string.Empty)
+            .Returns(
+                new HttpClient
+                {
+                    BaseAddress           = new Uri(_krakenRestServer.Url),
+                    DefaultRequestHeaders = { { "X-CW-API-Key", "CXRJ2EJTOLGUF4RNY4CF" } }
+                }
+            );
+
+    #region IAsyncLifetime Members
+
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync()
+    {
+        _krakenRestServer.Dispose();
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    [Fact]
+    public async Task Asserts_AssetsDefaultListing_JsonResponseDeserialization()
+    {
+        _krakenRestServer.SetupHeaderAuthenticatedAssetsDefaultListingRestEndpoint();
+
+        var assetListing = await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Assets
+            .ListAsync();
+
+        assetListing.Should()
+            .BeOfType<AssetCollection>();
+        assetListing.Result.First()
+            .Should()
+            .BeOfType<Asset>();
+        assetListing.Result.Should()
+            .HaveCount(4);
+        assetListing.Result.First()
+            .Fiat.Should()
+            .BeFalse();
+        assetListing.Result.First()
+            .Route.Should()
+            .Be("https://api.cryptowat.ch/assets/00");
+        assetListing.Result.First()
+            .Id.Should()
+            .Be(182298);
+        assetListing.Result.First()
+            .Name.Should()
+            .Be("zer0zer0");
+        assetListing.Result.First()
+            .Symbol.Should()
+            .Be("00");
+        assetListing.Cursor.Should()
+            .BeOfType<Cursor>();
+        assetListing.Cursor.HasMore.Should()
+            .BeFalse();
+        assetListing.Cursor.Last.Should()
+            .Be("oyf5zGBCmihzyxUAuRQBgqnpQMbdUiwrR6Av0zu51i_10bJhWKgiXiqq7EkBTg");
+        assetListing.Allowance.Should()
+            .BeOfType<Allowance>();
+        assetListing.Allowance.Cost.Should()
+            .Be(0.000M);
+        assetListing.Allowance.Remaining.Should()
+            .Be(10.000M);
+        assetListing.Allowance.Upgrade.Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public async Task Asserts_AssetsSpecificAmountListing_JsonResponseDeserialization()
+    {
+        const uint items = 5;
+        _krakenRestServer.SetupHeaderAuthenticatedAssetsSpecificAmountListingRestEndpoint();
+
+        var assetListing = await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Assets
+            .ListAsync(items);
+
+        assetListing.Should()
+            .BeOfType<AssetCollection>();
+        assetListing.Result.First()
+            .Should()
+            .BeOfType<Asset>();
+        assetListing.Result.Should()
+            .HaveCount(5);
+        assetListing.Result.First()
+            .Fiat.Should()
+            .BeFalse();
+        assetListing.Result.First()
+            .Route.Should()
+            .Be("https://api.cryptowat.ch/assets/grc");
+        assetListing.Result.First()
+            .Id.Should()
+            .Be(3);
+        assetListing.Result.First()
+            .Name.Should()
+            .Be("GridCoin");
+        assetListing.Result.First()
+            .Symbol.Should()
+            .Be("grc");
+        assetListing.Result.First()
+            .SymbolId.Should()
+            .Be("gridcoin-research");
+        assetListing.Allowance.Should()
+            .BeOfType<Allowance>();
+        assetListing.Allowance.Cost.Should()
+            .Be(0.000M);
+        assetListing.Allowance.Remaining.Should()
+            .Be(10.000M);
+        assetListing.Allowance.Upgrade.Should()
+            .BeNull();
+        assetListing.Cursor.HasMore.Should()
+            .BeTrue();
+        assetListing.Cursor.Last.Should()
+            .Be("IUNcUONnQ8nOiReTpD3fC9XOTtWZ6_FHJoQz89zcIeULmOsAcmW6Lg");
+    }
+
+    [Fact]
+    public async Task Asserts_AssetDetailListing_JsonResponseDeserialization()
+    {
+        const string asset = "btc";
+        _krakenRestServer.SetupHeaderAuthenticatedAssetDetailRestEndpoint();
+
+        var bitcoinAssetDetails =
+            await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Assets.DetailsAsync(asset);
+
+        bitcoinAssetDetails.Should()
+            .BeOfType<AssetDetail>();
+        bitcoinAssetDetails.Result.Should()
+            .BeOfType<AssetDetail.ResultDetails>();
+        bitcoinAssetDetails.Result.Fiat.Should()
+            .BeFalse();
+        bitcoinAssetDetails.Result.Id.Should()
+            .Be(60);
+        bitcoinAssetDetails.Result.Name.Should()
+            .Be("Bitcoin");
+        bitcoinAssetDetails.Result.Symbol.Should()
+            .Be("btc");
+        bitcoinAssetDetails.Result.SymbolId.Should()
+            .Be("bitcoin");
+        bitcoinAssetDetails.Result.AssetMarkets.Should()
+            .BeOfType<AssetDetail.Markets>();
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.Should()
+            .BeOfType<AssetDetail.Base[]>();
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.Should()
+            .BeOfType<AssetDetail.Base[]>();
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.Should()
+            .HaveCount(10);
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Id.Should()
+            .Be(1);
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Active.Should()
+            .BeTrue();
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Exchange.Should()
+            .Be("bitfinex");
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Pair.Should()
+            .Be("btcusd");
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Route.Should()
+            .Be("https://api.cryptowat.ch/markets/bitfinex/btcusd");
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.Should()
+            .HaveCount(7);
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Id.Should()
+            .Be(3);
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Active.Should()
+            .BeTrue();
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Exchange.Should()
+            .Be("bitfinex");
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Pair.Should()
+            .Be("ltcbtc");
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Route.Should()
+            .Be("https://api.cryptowat.ch/markets/bitfinex/ltcbtc");
+        bitcoinAssetDetails.Allowance.Should()
+            .BeOfType<Allowance>();
+        bitcoinAssetDetails.Allowance.Cost.Should()
+            .Be(0.0M);
+        bitcoinAssetDetails.Allowance.Remaining.Should()
+            .Be(10.0M);
+        bitcoinAssetDetails.Allowance.RemainingPaid.Should()
+            .Be(9999999999);
+        bitcoinAssetDetails.Allowance.Upgrade.Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public async Task Asserts_AssetSpecificAmountDetailListing_JsonResponseDeserialization()
+    {
+        const int    items = 5;
+        const string asset = "btc";
+        _krakenRestServer.SetupHeaderAuthenticatedAssetSpecificAmountDetailRestEndpoint();
+
+        var bitcoinAssetDetails =
+            await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Assets.DetailsAsync(asset, items);
+
+        bitcoinAssetDetails.Should()
+            .BeOfType<AssetDetail>();
+        bitcoinAssetDetails.Result.Should()
+            .BeOfType<AssetDetail.ResultDetails>();
+        bitcoinAssetDetails.Result.Fiat.Should()
+            .BeFalse();
+        bitcoinAssetDetails.Result.Id.Should()
+            .Be(60);
+        bitcoinAssetDetails.Result.Name.Should()
+            .Be("Bitcoin");
+        bitcoinAssetDetails.Result.Symbol.Should()
+            .Be("btc");
+        bitcoinAssetDetails.Result.SymbolId.Should()
+            .Be("bitcoin");
+        bitcoinAssetDetails.Result.AssetMarkets.Should()
+            .BeOfType<AssetDetail.Markets>();
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.Should()
+            .BeOfType<AssetDetail.Base[]>();
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.Should()
+            .BeOfType<AssetDetail.Base[]>();
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.Should()
+            .HaveCount(9);
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Id.Should()
+            .Be(1);
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Active.Should()
+            .BeTrue();
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Exchange.Should()
+            .Be("bitfinex");
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Pair.Should()
+            .Be("btcusd");
+        bitcoinAssetDetails.Result.AssetMarkets.BaseMarket.First()
+            .Route.Should()
+            .Be("https://api.cryptowat.ch/markets/bitfinex/btcusd");
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.Should()
+            .HaveCount(13);
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Id.Should()
+            .Be(3);
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Active.Should()
+            .BeTrue();
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Exchange.Should()
+            .Be("bitfinex");
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Pair.Should()
+            .Be("ltcbtc");
+        bitcoinAssetDetails.Result.AssetMarkets.QuoteMarket.First()
+            .Route.Should()
+            .Be("https://api.cryptowat.ch/markets/bitfinex/ltcbtc");
+        bitcoinAssetDetails.Allowance.Should()
+            .BeOfType<Allowance>();
+        bitcoinAssetDetails.Allowance.Cost.Should()
+            .Be(0.0M);
+        bitcoinAssetDetails.Allowance.Remaining.Should()
+            .Be(10.0M);
+        bitcoinAssetDetails.Allowance.RemainingPaid.Should()
+            .Be(9999999999);
+        bitcoinAssetDetails.Allowance.Upgrade.Should()
+            .BeNull();
+    }
+
+    [Fact]
+    public async Task Asserts_InvalidlyAuthenticated_Response()
+    {
+        _krakenRestServer.SetupHeaderInvalidlyAuthenticatedAssetsDefaultListingRestEndpoint();
+        _httpClientFactory.CreateClient(string.Empty)
+            .Returns(
+                new HttpClient
+                {
+                    BaseAddress           = new Uri(_krakenRestServer.Url),
+                    DefaultRequestHeaders = { { "X-CW-API-Key", "---" } }
+                }
+            );
+
+        var invalidCall = async () =>
+            await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Assets.ListAsync();
+
+        await invalidCall.Should()
+            .ThrowAsync<HttpRequestException>()
+            .WithMessage("Response status code does not indicate success: 400 (Bad Request).");
+    }
+
+    [Fact]
+    public async Task Asserts_InvalidlyRoute_Response()
+    {
+        _httpClientFactory.CreateClient(string.Empty)
+            .Returns(
+                new HttpClient
+                {
+                    BaseAddress           = new Uri(_krakenRestServer.Url),
+                    DefaultRequestHeaders = { { "X-CW-API-Key", "---" } }
+                }
+            );
+
+        var invalidCall = async () =>
+            await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Assets.ListAsync();
+
+        await invalidCall.Should()
+            .ThrowAsync<HttpRequestException>()
+            .WithMessage("Response status code does not indicate success: 404 (Not Found).");
+    }
+}

@@ -1,0 +1,117 @@
+using Kraken.REST.API;
+using Kraken.REST.API.Types;
+using FluentAssertions;
+using NSubstitute;
+using Xunit;
+
+namespace Kraken.API.Tests.Integration;
+
+public sealed class UnauthenticatedExchangesTests : IAsyncLifetime
+{
+    private readonly KrakenRestServerApi _krakenRestServer = new();
+    private readonly IHttpClientFactory   _httpClientFactory = Substitute.For<IHttpClientFactory>();
+
+    public UnauthenticatedExchangesTests() =>
+        _httpClientFactory.CreateClient(string.Empty)
+            .Returns(
+                new HttpClient
+                {
+                    BaseAddress = new Uri(_krakenRestServer.Url)
+                }
+            );
+
+    #region IAsyncLifetime Members
+
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    public Task DisposeAsync()
+    {
+        _krakenRestServer.Dispose();
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    [Fact]
+    public async Task Asserts_ExchangesListing_JsonResponseDeserialization()
+    {
+        _krakenRestServer.SetupUnauthenticatedExchangesDefaultListingRestEndpoint();
+
+        var exchangeDefaultListing =
+            await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Exchanges.ListAsync();
+
+        exchangeDefaultListing.Should()
+            .BeOfType<Exchanges>();
+        exchangeDefaultListing.Result.Should()
+            .BeOfType<Exchanges.ResultDetails[]>();
+        exchangeDefaultListing.Result.Should()
+            .HaveCount(48);
+        exchangeDefaultListing.Result.First()
+            .Id.Should()
+            .Be(1);
+        exchangeDefaultListing.Result.First()
+            .Active.Should()
+            .BeTrue();
+        exchangeDefaultListing.Result.First()
+            .Name.Should()
+            .Be("Bitfinex");
+        exchangeDefaultListing.Result.First()
+            .Route.Should()
+            .Be("https://api.cryptowat.ch/exchanges/bitfinex");
+        exchangeDefaultListing.Result.First()
+            .Symbol.Should()
+            .Be("bitfinex");
+        exchangeDefaultListing.Cursor.Should()
+            .BeOfType<Cursor>();
+        exchangeDefaultListing.Cursor.HasMore.Should()
+            .BeFalse();
+        exchangeDefaultListing.Cursor.Last.Should()
+            .BeNull();
+        exchangeDefaultListing.Allowance.Should()
+            .BeOfType<Allowance>();
+        exchangeDefaultListing.Allowance.Cost.Should()
+            .Be(0.002M);
+        exchangeDefaultListing.Allowance.Remaining.Should()
+            .Be(9.998M);
+        exchangeDefaultListing.Allowance.RemainingPaid.Should()
+            .Be(0);
+        exchangeDefaultListing.Allowance.Upgrade.Should()
+            .Be("For unlimited API access, create an account at https://cryptowat.ch");
+    }
+
+    [Fact]
+    public async Task Asserts_ExchangeDetailing_JsonResponseDeserialization()
+    {
+        const string exchange = "kraken";
+        _krakenRestServer.SetupUnauthenticatedExchangesDefaultKrakenDetailingRestEndpoint();
+
+        var exchangeDefaultDetailing =
+            await new CryptoWatchRestApi(_httpClientFactory.CreateClient()).Exchanges.DetailsAsync(exchange);
+
+        exchangeDefaultDetailing.Result.Should()
+            .BeOfType<Exchange.ResultDetail>();
+        exchangeDefaultDetailing.Result.Id.Should()
+            .Be(4);
+        exchangeDefaultDetailing.Result.Active.Should()
+            .BeTrue();
+        exchangeDefaultDetailing.Result.Name.Should()
+            .Be("Kraken");
+        exchangeDefaultDetailing.Result.Routes.Should()
+            .BeOfType<Route>();
+        exchangeDefaultDetailing.Result.Routes.Markets.Should()
+            .Be("https://api.cryptowat.ch/markets/kraken");
+        exchangeDefaultDetailing.Result.Symbol.Should()
+            .Be("kraken");
+        exchangeDefaultDetailing.Allowance.Should()
+            .BeOfType<Allowance>();
+        exchangeDefaultDetailing.Allowance.Cost.Should()
+            .Be(0.002M);
+        exchangeDefaultDetailing.Allowance.Remaining.Should()
+            .Be(9.996M);
+        exchangeDefaultDetailing.Allowance.RemainingPaid.Should()
+            .Be(0);
+        exchangeDefaultDetailing.Allowance.Upgrade.Should()
+            .Be("For unlimited API access, create an account at https://cryptowat.ch");
+    }
+}
