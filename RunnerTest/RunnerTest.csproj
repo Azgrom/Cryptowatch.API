@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CoreAbstractions\CoreAbstractions.csproj" />
       <ProjectReference Include="..\Kraken.REST.API\Kraken.REST.API.csproj" />
     </ItemGroup>
 

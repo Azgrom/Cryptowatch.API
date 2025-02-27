@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.API.Tests.Integratio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunnerTest", "RunnerTest\RunnerTest.csproj", "{7BCAAFB5-C329-4DB8-92C1-047E677054DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreAbstractions", "CoreAbstractions\CoreAbstractions.csproj", "{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonConverterTests", "JsonConverterTests\JsonConverterTests.csproj", "{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,5 +29,13 @@ Global
 		{7BCAAFB5-C329-4DB8-92C1-047E677054DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BCAAFB5-C329-4DB8-92C1-047E677054DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BCAAFB5-C329-4DB8-92C1-047E677054DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

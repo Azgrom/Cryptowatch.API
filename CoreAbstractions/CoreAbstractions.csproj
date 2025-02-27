@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>12</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="System.Text.Json">
+        <HintPath>..\..\..\..\..\..\..\..\home\rafael\.nuget\packages\system.text.json\9.0.0\lib\netstandard2.0\System.Text.Json.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using RunnerTest;
+
+namespace JsonConverterTests;
+
+public class UnitTest1
+{
+    [Fact]
+    public void Test1()
+    {
+        var validAssetPairResponse = Encoding.UTF8.GetBytes(RestResponses.ValidAssetPairResponse);
+        var ohlcJsonConverter      = new OhlcJsonConverter();
+        var utf8JsonReader         = new Utf8JsonReader(validAssetPairResponse);
+
+        var result = ohlcJsonConverter.Read(ref utf8JsonReader, typeof(Ohlc), null);
+
+        Console.WriteLine(result);
+    }
+}
