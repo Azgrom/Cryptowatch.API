@@ -4,12 +4,11 @@ namespace CoreAbstractions;
 
 public static class JsonProcessExtensions
 {
-public static Result<bool> ReadNext(this ref Utf8JsonReader jsonReader)
+public static Result ReadNext(this ref Utf8JsonReader jsonReader)
 {
     try
     {
-        _ = jsonReader.Read();
-        return true;
+        return jsonReader.Read();
     }
     catch (JsonException jsonException)
     {

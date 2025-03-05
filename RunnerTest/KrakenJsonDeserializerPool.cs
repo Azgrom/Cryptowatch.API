@@ -26,28 +26,3 @@ public class KrakenJsonDeserializerPool
 
     readonly List<string> Errors = new();
 }
-
-public record struct BookEntry()
-{
-    public decimal Price     { get; set; } = 0;
-    public decimal Volume    { get; set; } = 0;
-    public ulong   Timestamp { get; set; } = 0;
-}
-
-public record struct PairOrderBookEntries
-{
-    public PairOrderBookEntries(
-        string          orderBookName,
-        List<BookEntry> asks,
-        List<BookEntry> bids
-    )
-    {
-        OrderBookName = orderBookName;
-        BookAsks = asks;
-        BookBids = bids;
-    }
-
-    public string          OrderBookName { get; init; }
-    public List<BookEntry> BookAsks      { get; init; }
-    public List<BookEntry> BookBids      { get; init; }
-}

@@ -28,16 +28,3 @@ public class JsonConvertersBenchmarks
         // var _ = Ohlc.FromJson(ref utf8JsonReader);
     }
 }
-
-internal ref struct X
-{
-    private static readonly byte[]         ValidAssetPairResponse;
-
-    static X() { ValidAssetPairResponse = Encoding.UTF8.GetBytes(RestResponses.ValidAssetPairResponse); }
-
-    public void R()
-    {
-        var utf8JsonReader         = new Utf8JsonReader(ValidAssetPairResponse);
-        var _                      = Ohlc.FromJson(ref utf8JsonReader);
-    }
-}

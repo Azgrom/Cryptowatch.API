@@ -20,11 +20,13 @@ public readonly record struct Result
         }
     }
 
-    public        bool   IsSuccess { get; }
-    public        bool   IsFailure => !IsSuccess;
-    public        Error  Error     { get; }
-    public static Result Success() => SuccessfulResult;
-    public static Result Failure() => FailureResult;
+    public                          bool   IsSuccess     { get; }
+    public                          bool   IsFailure     => !IsSuccess;
+    public                          Error  Error         { get; }
+    public static                   Result Success()     => SuccessfulResult;
+    public static                   Result Failure()     => FailureResult;
+    public static implicit operator Result(bool  result) => Success();
+    public static implicit operator Result(Error err)    => new(false, err);
 }
 
 public readonly record struct Result<TValue>
