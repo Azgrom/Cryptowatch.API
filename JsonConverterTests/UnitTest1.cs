@@ -12,11 +12,10 @@ public class UnitTest1
     public void Test1()
     {
         var validAssetPairResponse = Encoding.UTF8.GetBytes(RestResponses.ValidAssetPairResponse);
-        var ohlcJsonConverter      = new OhlcJsonConverter();
         var utf8JsonReader         = new Utf8JsonReader(validAssetPairResponse);
 
-        var result = ohlcJsonConverter.Read(ref utf8JsonReader, typeof(Ohlc), null);
+        var ohlcJsonConverter      = Ohlc.FromJson(ref utf8JsonReader);
 
-        Console.WriteLine(result);
+        Console.WriteLine(ohlcJsonConverter);
     }
 }

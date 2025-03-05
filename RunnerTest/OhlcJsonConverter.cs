@@ -7,37 +7,42 @@ using Microsoft.Extensions.Logging;
 
 namespace RunnerTest;
 
-public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
+public sealed record Ohlc
 {
-    private const uint          PricePositionInBookArray      = 1;
-    private const uint          VolumePositionInBookArray     = 2;
-    private const uint          TimestampPositionInBookArray  = 3;
-    private const string        StartReadingErrorCode         = "StartReadingError";
-    private const string        ReadingTokenErrorCode         = "ReadingTokenError";
-    private const string        UnexpectedTokenErrorCode      = "UnexpectedTokenError";
-    private const string        EnteringObjectErrorCode       = "EnteringObjectError";
-    private const string        EnteringArrayErrorCode        = "EnteringArrayError";
-    private const string        UnknownPropertyErrorCode      = "UnknownPropertyError";
-    private const string        EnteringPropertyNameErrorCode = "EnteringPropertyNameError";
-    private const string        ReadingBookPropertyErrorCode  = "ReadingBookPropertyError";
-    private       Result        _nextReadResult               = Result.Failure();
-    private       JsonTokenType _tokenType                    = JsonTokenType.None;
+    private const uint   PricePositionInBookArray      = 1;
+    private const uint   VolumePositionInBookArray     = 2;
+    private const uint   TimestampPositionInBookArray  = 3;
+    private const string StartReadingErrorCode         = "StartReadingError";
+    private const string ReadingTokenErrorCode         = "ReadingTokenError";
+    private const string UnexpectedTokenErrorCode      = "UnexpectedTokenError";
+    private const string EnteringObjectErrorCode       = "EnteringObjectError";
+    private const string EnteringArrayErrorCode        = "EnteringArrayError";
+    private const string UnknownPropertyErrorCode      = "UnknownPropertyError";
+    private const string EnteringPropertyNameErrorCode = "EnteringPropertyNameError";
+    private const string ReadingBookPropertyErrorCode  = "ReadingBookPropertyError";
 
-    public override Result<Ohlc> Read(ref Utf8JsonReader jsonReader, Type typeToConvert, JsonSerializerOptions options)
+    public Ohlc(string[] errors, List<PairOrderBookEntries> pairOrderBookSpan)
     {
-        Result<Ohlc> result = Result.Success(new Ohlc());
+        Errors            = errors;
+        PairOrderBookSpan = pairOrderBookSpan;
+    }
 
-        _nextReadResult = jsonReader.ReadNext();
-        if (_nextReadResult.IsSuccess)
-        {
-            _tokenType = jsonReader.TokenType;
-        }
-        else
-        {
-            result = Result.Failure<Ohlc>(new Error(StartReadingErrorCode, _nextReadResult.Error));
-        }
+    public string[]               Errors            { get; private set; }
+    public List<PairOrderBookEntries> PairOrderBookSpan { get; private set; }
 
-        if (_tokenType is JsonTokenType.StartObject && _nextReadResult.IsSuccess)
+    public static Result<Ohlc> FromJson(ref Utf8JsonReader jsonReader) =>
+        new JsonConverter().Read(ref jsonReader, typeof(Ohlc), null);
+
+    private class JsonConverter : JsonConverter<Result<Ohlc>>
+    {
+        private Result<bool>  _nextReadResult = Error.NullValue;
+        private JsonTokenType _tokenType      = JsonTokenType.None;
+
+        public override Result<Ohlc> Read(
+            ref Utf8JsonReader    jsonReader,
+            Type                  typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             _nextReadResult = jsonReader.ReadNext();
             if (_nextReadResult.IsSuccess)
@@ -46,204 +51,239 @@ public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
             }
             else
             {
-                result = Result.Failure<Ohlc>(new Error(EnteringObjectErrorCode, _nextReadResult.Error));
+                _nextReadResult = new Error(StartReadingErrorCode, _nextReadResult.Error);
             }
-        }
-        else
-        {
-            // TODO Failure result for JsonTokenType different of StartObject
-        }
 
-        List<string> errors = [];
-        while (_nextReadResult.IsSuccess && _tokenType is JsonTokenType.PropertyName)
-        {
-            var errorPropertyName  = jsonReader.ValueTextEquals("error");
-            var resultPropertyName = jsonReader.ValueTextEquals("result");
-
-            if (!errorPropertyName && !resultPropertyName && jsonReader.HasValueSequence)
+            if (_tokenType is JsonTokenType.StartObject && _nextReadResult.IsSuccess)
             {
-                result = UnknownPropertyResult(ref jsonReader);
+                _nextReadResult = jsonReader.ReadNext();
+                if (_nextReadResult.IsSuccess)
+                {
+                    _tokenType = jsonReader.TokenType;
+                }
+                else
+                {
+                    _nextReadResult = new Error(EnteringObjectErrorCode, _nextReadResult.Error);
+                }
+            }
+            else
+            {
+                // TODO Failure result for JsonTokenType different of StartObject
             }
 
-            if (errorPropertyName && result.IsSuccess)
+            var errors            = Array.Empty<string>();
+            var          errorPropertyName = jsonReader.ValueTextEquals("error");
+            if (errorPropertyName && _nextReadResult.IsSuccess)
             {
                 var errorSweep = ErrorSweep(ref jsonReader);
 
                 if (errorSweep.IsFailure)
                 {
-                    result = Result.Failure<Ohlc>(errorSweep.Error);
+                    _nextReadResult = errorSweep.Error;
                 }
                 else
                 {
-                    if (errorSweep.Value.Count > 0)
+                    if (errorSweep.Value.Length > 0)
                     {
-                        result.Value.Errors = errorSweep.Value;
+                        errors = errorSweep.Value;
                     }
                 }
             }
 
-            if (resultPropertyName)
+            _nextReadResult = jsonReader.ReadNext();
+            if (_nextReadResult.IsFailure) return new Error(ReadingTokenErrorCode, _nextReadResult.Error);
+
+            _tokenType = jsonReader.TokenType;
+            var resultPropertyName = jsonReader.ValueTextEquals("result");
+
+            List<PairOrderBookEntries>? pairOrderBookEntries = null;
+            if (resultPropertyName && _nextReadResult.IsSuccess)
             {
-                ResultSweep(ref jsonReader);
+                var resultSweep = ResultSweep(ref jsonReader);
+                if (resultSweep.IsFailure)
+                {
+                    _nextReadResult = resultSweep.Error;
+                }
+                else
+                {
+                    pairOrderBookEntries = resultSweep.Value;
+                }
             }
 
+            _nextReadResult = jsonReader.ReadNext();
+            if (_nextReadResult.IsFailure) return new Error(ReadingTokenErrorCode, _nextReadResult.Error);
+
+            _tokenType = jsonReader.TokenType;
+
+            if (!errorPropertyName && !resultPropertyName && jsonReader.HasValueSequence &&
+                pairOrderBookEntries is null)
+            {
+                _nextReadResult = UnknownPropertyResult(ref jsonReader);
+            }
+
+            if (_tokenType is JsonTokenType.EndObject &&
+                pairOrderBookEntries is not null) return new Ohlc(errors, pairOrderBookEntries);
+
+            return new Error(UnexpectedTokenErrorCode, $"Unexpected End of Error Array: {_nextReadResult.Error}");
+        }
+
+        public override void Write(Utf8JsonWriter writer, Result<Ohlc> value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Error UnknownPropertyResult(ref Utf8JsonReader jsonReader)
+        {
+            var propName = Encoding.UTF8.GetString(jsonReader.ValueSequence);
+            return new Error(UnknownPropertyErrorCode, propName);
+        }
+
+        private Result<string[]> ErrorSweep(ref Utf8JsonReader jsonReader)
+        {
+            _nextReadResult = jsonReader.ReadNext();
+            if (_nextReadResult.IsSuccess)
+            {
+                _tokenType = jsonReader.TokenType;
+            }
+            else
+            {
+                return new Error(StartReadingErrorCode, _nextReadResult.Error);
+            }
+
+            if (_tokenType is JsonTokenType.StartArray)
+            {
+                _nextReadResult = jsonReader.ReadNext();
+                if (_nextReadResult.IsSuccess)
+                {
+                    _tokenType = jsonReader.TokenType;
+                }
+                else
+                {
+                    return new Error(EnteringArrayErrorCode, _nextReadResult.Error);
+                }
+            }
+
+            var errors = new List<string>();
+            while (_nextReadResult.IsSuccess && _tokenType is JsonTokenType.String)
+            {
+                var s        = jsonReader.GetString();
+                var position = jsonReader.Position.GetInteger();
+                Debug.Assert(s == null, $"{nameof(JsonTokenType.String)} == null a position {position}");
+                Debug.Assert(s != null, $"{nameof(JsonTokenType.String)} != null a position {position}");
+                errors.Add(s);
+
+                _nextReadResult = jsonReader.ReadNext();
+                if (_nextReadResult.IsSuccess)
+                {
+                    _tokenType = jsonReader.TokenType;
+                }
+                else
+                {
+                    return new Error(ReadingTokenErrorCode, _nextReadResult.Error);
+                }
+            }
+
+            if (_tokenType is JsonTokenType.EndArray) return errors.ToArray();
+
+            return new Error(UnexpectedTokenErrorCode, "Unexpected End of Error Array");
+        }
+
+
+        private Result<List<PairOrderBookEntries>> ResultSweep(ref Utf8JsonReader jsonReader)
+        {
+            var error = Error.None;
             _nextReadResult = jsonReader.ReadNext();
             if (_nextReadResult.IsFailure)
-                return Result.Failure<Ohlc>(new Error(ReadingTokenErrorCode, _nextReadResult.Error));
+            {
+                error = new Error(StartReadingErrorCode, _nextReadResult.Error);
+            }
 
             _tokenType = jsonReader.TokenType;
-        }
-
-        if (_tokenType is JsonTokenType.EndObject) return result;
-
-        return Result.Failure<Ohlc>(new Error(UnexpectedTokenErrorCode, "Unexpected End of Error Array"));
-    }
-
-    public override void Write(Utf8JsonWriter writer, Result<Ohlc> value, JsonSerializerOptions options)
-    {
-        throw new NotImplementedException();
-    }
-
-    private static Result<Ohlc> UnknownPropertyResult(ref Utf8JsonReader jsonReader)
-    {
-        var propName = Encoding.UTF8.GetString(jsonReader.ValueSequence);
-        return new Error(UnknownPropertyErrorCode, propName);
-    }
-
-    private Result<List<string>> ErrorSweep(ref Utf8JsonReader jsonReader)
-    {
-        _nextReadResult = jsonReader.ReadNext();
-        if (_nextReadResult.IsSuccess)
-        {
-            _tokenType = jsonReader.TokenType;
-        }
-        else
-        {
-            return new Error(StartReadingErrorCode, _nextReadResult.Error);
-        }
-
-        if (_tokenType is JsonTokenType.StartArray)
-        {
-            _nextReadResult = jsonReader.ReadNext();
-            if (_nextReadResult.IsSuccess)
-            {
-                _tokenType = jsonReader.TokenType;
-            }
-            else
-            {
-                return new Error(EnteringArrayErrorCode, _nextReadResult.Error);
-            }
-        }
-
-        var errors = new List<string>();
-        while (_nextReadResult.IsSuccess && _tokenType is JsonTokenType.String)
-        {
-            var s        = jsonReader.GetString();
-            var position = jsonReader.Position.GetInteger();
-            Debug.Assert(s == null, $"{nameof(JsonTokenType.String)} == null a position {position}");
-            Debug.Assert(s != null, $"{nameof(JsonTokenType.String)} != null a position {position}");
-            errors.Add(s);
-
-            _nextReadResult = jsonReader.ReadNext();
-            if (_nextReadResult.IsSuccess)
-            {
-                _tokenType = jsonReader.TokenType;
-            }
-            else
-            {
-                return new Error(ReadingTokenErrorCode, _nextReadResult.Error);
-            }
-        }
-
-        if (_tokenType is JsonTokenType.EndArray) return Result.Success(errors);
-
-        return new Error(UnexpectedTokenErrorCode, "Unexpected End of Error Array");
-    }
-
-
-    private Result<List<PairOrderBookSpan>> ResultSweep(ref Utf8JsonReader jsonReader)
-    {
-        var error = Error.None;
-        _nextReadResult = jsonReader.ReadNext();
-        if (_nextReadResult.IsFailure)
-        {
-            error = new Error(StartReadingErrorCode, _nextReadResult.Error);
-        }
-
-        _tokenType = jsonReader.TokenType;
-        if (_tokenType is not JsonTokenType.StartObject)
-        {
-            error = new Error(EnteringObjectErrorCode, _nextReadResult.Error);
-        }
-
-        var pairOrderBookSpan = new List<PairOrderBookSpan>(1);
-        _nextReadResult = jsonReader.ReadNext();
-        while (_nextReadResult.IsSuccess)
-        {
-            _tokenType = jsonReader.TokenType;
-
-            if (_nextReadResult.IsFailure || _tokenType != JsonTokenType.PropertyName)
-            {
-                error = new Error(EnteringPropertyNameErrorCode,
-                    _nextReadResult.Error);
-            }
-
-            var propName      = jsonReader.GetString();
-
-            _nextReadResult = jsonReader.ReadNext();
-            _tokenType      = jsonReader.TokenType;
-
-            if (_nextReadResult.IsFailure || _tokenType is not JsonTokenType.StartObject)
+            if (_tokenType is not JsonTokenType.StartObject)
             {
                 error = new Error(EnteringObjectErrorCode, _nextReadResult.Error);
             }
 
-            var bookWorker        = BookBuilder.Create(propName);
-            var collectAsksResult = bookWorker.CollectAsks(ref jsonReader);
-
-            if (collectAsksResult.IsFailure)
+            var pairOrderBookSpan = new List<PairOrderBookEntries>(1);
+            _nextReadResult = jsonReader.ReadNext();
+            while (_nextReadResult.IsSuccess)
             {
-                // todo
+                _tokenType = jsonReader.TokenType;
+
+                if (_tokenType is JsonTokenType.EndArray)
+                {
+                    _nextReadResult = jsonReader.ReadNext();
+                    continue;
+                }
+
+                if (_tokenType is JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
+                if (_nextReadResult.IsFailure || _tokenType != JsonTokenType.PropertyName)
+                {
+                    error = new Error(EnteringPropertyNameErrorCode,
+                        _nextReadResult.Error);
+                }
+
+                var propName = jsonReader.GetString();
+
+                _nextReadResult = jsonReader.ReadNext();
+                _tokenType      = jsonReader.TokenType;
+
+                if (_nextReadResult.IsFailure || _tokenType is not JsonTokenType.StartObject)
+                {
+                    error = new Error(EnteringObjectErrorCode, _nextReadResult.Error);
+                }
+
+                var bookWorker        = BookBuilder.Create();
+                var collectAsksResult = bookWorker.CollectAsks(ref jsonReader);
+
+                if (collectAsksResult.IsFailure)
+                {
+                    // todo
+                }
+
+                var collectBidsResult = collectAsksResult.Value.CollectBids(ref jsonReader);
+
+                if (collectBidsResult.IsFailure)
+                {
+                    // todo
+                }
+
+                var orderBookSpan = collectBidsResult.Value.Build(propName);
+
+                pairOrderBookSpan.Add(orderBookSpan);
             }
 
-            var collectBidsResult = collectAsksResult.Value.CollectBids(ref jsonReader);
-
-            if (collectBidsResult.IsFailure)
+            if (error != Error.None)
             {
-                // todo
+                return error;
             }
 
-            var orderBookSpan = collectBidsResult.Value.Build();
-
-            pairOrderBookSpan.Add(orderBookSpan);
+            return pairOrderBookSpan;
         }
-
-        if (error != Error.None)
-        {
-            return error;
-        }
-
-        return Result.Success(pairOrderBookSpan);
     }
 
-    public class BookBuilder
+    private class BookBuilder
     {
-        public static BookWorker Create(string pairName) => new BookWorker(pairName);
+        public static BookWorker Create() => new();
 
         public class BookWorker :
             IBookBuilder,
             IAsksBookBuilder,
             IBidsBookBuilder
         {
-            private          uint              matchingBracketsCount = 0;
-            private          uint              doubleNumbersCount    = 0;
-            private          uint              asksCount             = 0;
-            private          uint              bidsCount             = 0;
-            private readonly PairOrderBookSpan _pairOrderBookSpan;
-            private          Result            _nextReadResult = Result.Failure();
-            private          JsonTokenType     _tokenType      = JsonTokenType.None;
-
-            public BookWorker(string pairName) { _pairOrderBookSpan = new PairOrderBookSpan(pairName); }
+            private       uint            _matchingBracketsCount;
+            private       uint            _doubleNumbersCount;
+            private       uint            _asksCount;
+            private       uint            _bidsCount;
+            private const int             BookMaximumSize = 100;
+            private       List<BookEntry> _asks           = new List<BookEntry>(BookMaximumSize);
+            private       List<BookEntry> _bids           = new List<BookEntry>(BookMaximumSize);
+            private       Result<bool>    _nextReadResult = Error.NullValue;
+            private       JsonTokenType   _tokenType      = JsonTokenType.None;
 
             public Result<IBidsBookBuilder> CollectAsks(ref Utf8JsonReader jsonReader)
             {
@@ -267,9 +307,24 @@ public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
 
                 while (_nextReadResult.IsSuccess)
                 {
-                    if (ParseAskProperties(ref jsonReader, ref error)) continue;
+                    _tokenType = jsonReader.TokenType;
+                    var bookEntry = new BookEntry();
 
-                    break;
+                    ParseAskProperties(ref jsonReader, ref bookEntry);
+
+                    _asks.Add(bookEntry);
+
+                    if (_matchingBracketsCount == 0)
+                    {
+                        _asksCount--;
+                        break;
+                    }
+
+                    _nextReadResult = jsonReader.ReadNext();
+                    if (_nextReadResult.IsFailure)
+                    {
+                        error = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    }
                 }
 
                 if (error != Error.None) return error;
@@ -300,9 +355,24 @@ public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
 
                 while (_nextReadResult.IsSuccess)
                 {
-                    if (ParseBidsProperties(ref jsonReader, ref error)) continue;
+                    _tokenType = jsonReader.TokenType;
+                    var bookEntry = new BookEntry();
 
-                    break;
+                    ParseBidsProperties(ref jsonReader, ref bookEntry);
+
+                    _bids.Add(bookEntry);
+
+                    if (_matchingBracketsCount == 0)
+                    {
+                        _bidsCount--;
+                        break;
+                    }
+
+                    _nextReadResult = jsonReader.ReadNext();
+                    if (_nextReadResult.IsFailure)
+                    {
+                        error = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    }
                 }
 
                 if (error != Error.None) return error;
@@ -310,216 +380,165 @@ public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
                 return this;
             }
 
-            private bool ParseBidsProperties(ref Utf8JsonReader jsonReader, ref Error error)
+            private void ParseBidsProperties(ref Utf8JsonReader jsonReader, ref BookEntry bookEntry)
             {
-                _tokenType = jsonReader.TokenType;
-
                 if (_tokenType is JsonTokenType.StartArray)
                 {
-                    matchingBracketsCount++;
-                    return true;
+                    _matchingBracketsCount++;
+                    return;
                 }
 
                 if (_tokenType is JsonTokenType.Number or JsonTokenType.String)
                 {
-                    doubleNumbersCount++;
+                    _doubleNumbersCount++;
 
-                    if (doubleNumbersCount is PricePositionInBookArray)
+                    if (_doubleNumbersCount is PricePositionInBookArray)
                     {
-                        if (decimal.TryParse(jsonReader.ValueSpan, out var price))
-                        {
-                            _pairOrderBookSpan.BidsSpan[(int)bidsCount].Price = price;
-                        }
-                        else
-                        {
-                            if (bidsCount is 0)
-                            {
-                                // TODO
-                            }
-                            else
-                            {
-                                var previousPrice = _pairOrderBookSpan.BidsSpan[(int)bidsCount - 1].Price;
-                                _pairOrderBookSpan.BidsSpan[(int)bidsCount].Price = previousPrice;
-                            }
-                        }
+                        ParseBookBidPrice(ref jsonReader, ref bookEntry);
 
-                        return true;
+                        return;
                     }
 
-                    if (doubleNumbersCount is VolumePositionInBookArray)
+                    if (_doubleNumbersCount is VolumePositionInBookArray)
                     {
-                        if (decimal.TryParse(jsonReader.ValueSpan, out var volume))
-                        {
-                            _pairOrderBookSpan.BidsSpan[(int)bidsCount].Volume = volume;
-                        }
-                        else
-                        {
-                            if (bidsCount is 0)
-                            {
-                                // TODO
-                            }
-                            else
-                            {
-                                var previousVolume = _pairOrderBookSpan.BidsSpan[(int)bidsCount - 1].Volume;
-                                _pairOrderBookSpan.BidsSpan[(int)bidsCount].Volume = previousVolume;
-                            }
-                        }
+                        ParseBookBidVolume(ref jsonReader, ref bookEntry);
 
-                        return true;
+                        return;
                     }
 
-                    if (doubleNumbersCount is TimestampPositionInBookArray)
+                    if (_doubleNumbersCount is TimestampPositionInBookArray)
                     {
-                        doubleNumbersCount = 0;
+                        _doubleNumbersCount = 0;
                         var timestamp = jsonReader.GetUInt64();
-                        _pairOrderBookSpan.AsksSpan[(int)bidsCount].Timestamp = timestamp;
+                        bookEntry.Timestamp = timestamp;
 
-                        return true;
+                        return;
                     }
                 }
+
 
                 if (_tokenType is JsonTokenType.EndArray)
                 {
-                    matchingBracketsCount--;
-
-                    if (matchingBracketsCount == 0)
-                    {
-                        return false;
-                    }
-
-                    bidsCount++;
+                    _matchingBracketsCount--;
+                    _bidsCount++;
                 }
-
-                _nextReadResult = jsonReader.ReadNext();
-                if (_nextReadResult.IsFailure)
-                {
-                    error = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
-                }
-
-                return false;
             }
 
-            public PairOrderBookSpan Build() => _pairOrderBookSpan;
-
-            private bool ParseAskProperties(ref Utf8JsonReader jsonReader, ref Error error)
+            private void ParseBookBidVolume(
+                ref Utf8JsonReader jsonReader,
+                ref BookEntry      booksSpan
+            )
             {
-                _tokenType = jsonReader.TokenType;
+                if (decimal.TryParse(jsonReader.ValueSpan, out var volume))
+                {
+                    booksSpan.Volume = volume;
+                }
+                else
+                {
+                    // Pensar numa estratégia de erro
+                }
+            }
 
+            private void ParseBookBidPrice(
+                ref Utf8JsonReader jsonReader,
+                ref BookEntry      booksSpan
+            )
+            {
+                if (decimal.TryParse(jsonReader.ValueSpan, out var price))
+                {
+                    booksSpan.Price = price;
+                }
+                else
+                {
+                    // Pensar numa estratégia de erro
+                }
+            }
+
+            public PairOrderBookEntries Build(string propName) => new(propName, _asks, _bids);
+
+            private void ParseAskProperties(ref Utf8JsonReader jsonReader, ref BookEntry bookEntry)
+            {
                 if (_tokenType is JsonTokenType.StartArray)
                 {
-                    matchingBracketsCount++;
-                    return true;
+                    _matchingBracketsCount++;
+                    return;
                 }
-
-                var bookSpan = _pairOrderBookSpan.AsksSpan;
 
                 if (_tokenType is JsonTokenType.Number or JsonTokenType.String)
                 {
-                    doubleNumbersCount++;
+                    _doubleNumbersCount++;
 
-                    if (doubleNumbersCount is PricePositionInBookArray)
+                    if (_doubleNumbersCount is PricePositionInBookArray)
                     {
-                        ParseBookAskPrice(ref jsonReader, ref bookSpan, (int)asksCount);
+                        ParseBookAskPrice(ref jsonReader, ref bookEntry);
 
-                        return true;
+                        return;
                     }
 
-                    if (doubleNumbersCount is VolumePositionInBookArray)
+                    if (_doubleNumbersCount is VolumePositionInBookArray)
                     {
-                        ParseBookAskVolume(ref jsonReader, ref bookSpan, (int)asksCount);
+                        ParseBookAskVolume(ref jsonReader, ref bookEntry);
 
-                        return true;
+                        return;
                     }
 
-                    if (doubleNumbersCount is TimestampPositionInBookArray)
+                    if (_doubleNumbersCount is TimestampPositionInBookArray)
                     {
-                        doubleNumbersCount = 0;
+                        _doubleNumbersCount = 0;
                         var timestamp = jsonReader.GetUInt64();
-                        bookSpan[(int)asksCount].Timestamp = timestamp;
+                        bookEntry.Timestamp = timestamp;
 
-                        return true;
+                        return;
                     }
                 }
 
                 if (_tokenType is JsonTokenType.EndArray)
                 {
-                    matchingBracketsCount--;
-
-                    if (matchingBracketsCount == 0)
-                    {
-                        return false;
-                    }
-
-                    asksCount++;
+                    _matchingBracketsCount--;
+                    _asksCount++;
                 }
-
-                _nextReadResult = jsonReader.ReadNext();
-                if (_nextReadResult.IsFailure)
-                {
-                    error = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
-                }
-
-                return false;
             }
 
             private static void ParseBookAskPrice(
-                ref Utf8JsonReader    jsonReader,
-                ref Span<PairBookAsk> bookAsk,
-                int                   count
+                ref Utf8JsonReader jsonReader,
+                ref BookEntry      bookAsk
             )
             {
                 if (decimal.TryParse(jsonReader.ValueSpan, out var price1))
-                    bookAsk[count].Price = price1;
+                    bookAsk.Price = price1;
                 else
                 {
-                    if (count is 0)
-                    {
-                        // TODO
-                    }
-                    else
-                    {
-                        var previousPrice = bookAsk[count - 1].Price;
-                        bookAsk[count].Price = previousPrice;
-                    }
+                    // Pensar numa estratégia de erro
                 }
             }
 
             private static void ParseBookAskVolume(
-                ref Utf8JsonReader    jsonReader,
-                ref Span<PairBookAsk> bookSpan,
-                int                   count
+                ref Utf8JsonReader jsonReader,
+                ref BookEntry      bookSpan
             )
             {
                 if (decimal.TryParse(jsonReader.ValueSpan, out var volume))
-                    bookSpan[count].Volume = volume;
+                    bookSpan.Volume = volume;
                 else
                 {
-                    if (count is 0)
-                    {
-                        // TODO
-                    }
-                    else
-                    {
-                        var previousVolume = bookSpan[count - 1].Volume;
-                        bookSpan[count].Volume = previousVolume;
-                    }
+                    // Pensar numa estratégia de erro
                 }
             }
         }
     }
 
-    public interface IAsksBookBuilder
+    private interface IAsksBookBuilder
     {
         Result<IBidsBookBuilder> CollectAsks(ref Utf8JsonReader jsonReader);
     }
 
-    public interface IBidsBookBuilder
+    private interface IBidsBookBuilder
     {
         Result<IBookBuilder> CollectBids(ref Utf8JsonReader jsonReader);
     }
 
-    public interface IBookBuilder
+    private interface IBookBuilder
     {
-        PairOrderBookSpan Build();
+        PairOrderBookEntries Build(string propName);
     }
 }

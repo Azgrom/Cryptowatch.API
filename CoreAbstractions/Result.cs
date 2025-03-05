@@ -2,9 +2,12 @@ using System;
 
 namespace CoreAbstractions;
 
-public class Result
+public readonly record struct Result
 {
-    private protected Result(bool isSuccess, Error err)
+    private static readonly Result SuccessfulResult = new(true, Error.None);
+    private static readonly Result FailureResult    = new(false, Error.NullValue);
+
+    private Result(bool isSuccess, Error err)
     {
         switch (isSuccess)
         {
@@ -17,29 +20,40 @@ public class Result
         }
     }
 
-    public        bool           IsSuccess                     { get; }
-    public        bool           IsFailure                     => !IsSuccess;
-    public        Error          Error                         { get; }
-    public static Result         Success()                     => new(true, Error.None);
-    public static Result         Failure()                     => new(false, Error.NullValue);
-    public static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
-    public static Result<TValue> Failure<TValue>(Error  err)   => new((TValue?)(object)null!, false, err);
+    public        bool   IsSuccess { get; }
+    public        bool   IsFailure => !IsSuccess;
+    public        Error  Error     { get; }
+    public static Result Success() => SuccessfulResult;
+    public static Result Failure() => FailureResult;
 }
 
-public sealed class Result<TValue> : Result
+public readonly record struct Result<TValue>
 {
     private readonly TValue? _value;
 
-    public Result(TValue? value, bool isSuccess, Error err)
-        : base(isSuccess, err) =>
-        _value = value;
+    private Result(TValue? value, bool isSuccess, Error err)
+    {
+        switch (isSuccess)
+        {
+            case true when err  != Error.None: throw new InvalidOperationException();
+            case false when err == Error.None: throw new InvalidOperationException();
+            default:
+                _value    = value;
+                IsSuccess = isSuccess;
+                Error     = err;
+                break;
+        }
+    }
 
+    public bool  IsSuccess { get; }
+    public bool  IsFailure => !IsSuccess;
+    public Error Error     { get; }
 
     public TValue Value =>
         IsSuccess
             ? _value!
             : throw new InvalidOperationException("The value of a failure result cannot be accessed");
 
-    public static implicit operator Result<TValue>(TValue value) => Success(value);
-    public static implicit operator Result<TValue>(Error  err)   => Failure<TValue>(err);
+    public static implicit operator Result<TValue>(TValue value) => new(value, true, Error.None);
+    public static implicit operator Result<TValue>(Error  err)   => new(default, false, err);
 }

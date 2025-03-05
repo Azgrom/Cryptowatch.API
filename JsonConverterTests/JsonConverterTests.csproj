@@ -42,4 +42,8 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <InternalsVisibleTo Include="Benchmarks" />
+    </ItemGroup>
+
 </Project>

@@ -4,17 +4,17 @@ namespace CoreAbstractions;
 
 public static class JsonProcessExtensions
 {
-public static Result ReadNext(this ref Utf8JsonReader jsonReader)
+public static Result<bool> ReadNext(this ref Utf8JsonReader jsonReader)
 {
     try
     {
         _ = jsonReader.Read();
-        return Result.Success();
+        return true;
     }
     catch (JsonException jsonException)
     {
         var readingJsonError = new Error(jsonException.StackTrace, jsonException.Message);
-        return Result.Failure<bool>(readingJsonError);
+        return readingJsonError;
     }
 }
 }
