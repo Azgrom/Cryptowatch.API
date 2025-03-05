@@ -11,16 +11,14 @@ internal class Program
 
     public static void Main(string[] args)
     {
-        // var ohlcs             = new List<Ohlc>(10_000);
-        var ohlcJsonConverter = new OhlcJsonConverter();
+        var jsonSerializerOptions = new JsonSerializerOptions()
+        {
+        };
+        var ohlcJsonConverter     = new OrderBookJsonConverter();
+        jsonSerializerOptions.Converters.Add(ohlcJsonConverter);
         for (int i = 0; i < 100_000_000; i++)
         {
-            var utf8JsonReader = new Utf8JsonReader(ValidAssetPairResponse);
-            var value          = ohlcJsonConverter.IntoOhlc(ref utf8JsonReader).Value;
-            // ohlcs.Add(value);
-            //
-            // if (ohlcs.Count is 10_000)
-            //     ohlcs.Clear();
+            var deserialize = JsonSerializer.Deserialize<Result<OrderBook>>(RestObjects.ValidAssetPairResponse, jsonSerializerOptions);
         }
 
         Console.WriteLine("finished");

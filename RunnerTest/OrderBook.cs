@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace RunnerTest;
 
-public sealed record Ohlc
+public sealed record OrderBook
 {
-    public Ohlc(string[] errors, List<PairOrderBookEntries> pairOrderBookSpan)
+    public OrderBook(string[] errors, List<PairOrderBookEntries> pairOrderBookSpan)
     {
         Errors            = errors;
         PairOrderBookSpan = pairOrderBookSpan;
@@ -19,7 +19,7 @@ public sealed record Ohlc
     public List<PairOrderBookEntries> PairOrderBookSpan { get; private set; }
 }
 
-public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
+public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 {
     private const uint          PricePositionInBookArray      = 1;
     private const uint          VolumePositionInBookArray     = 2;
@@ -36,9 +36,9 @@ public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
     private       JsonTokenType _tokenType                    = JsonTokenType.None;
     private       BookBuilder   _bookBuilder                  = BookBuilder.Create();
 
-    public Result<Ohlc> IntoOhlc(ref Utf8JsonReader jsonReader) => Read(ref jsonReader, typeof(Ohlc), null);
+    public Result<OrderBook> IntoOhlc(ref Utf8JsonReader jsonReader) => Read(ref jsonReader, typeof(OrderBook), null);
 
-    public override Result<Ohlc> Read(
+    public override Result<OrderBook> Read(
         ref Utf8JsonReader    jsonReader,
         Type                  typeToConvert,
         JsonSerializerOptions options
@@ -123,12 +123,16 @@ public class OhlcJsonConverter : JsonConverter<Result<Ohlc>>
 
         if (_tokenType is JsonTokenType.EndObject &&
             pairOrderBookEntries is not null)
-            return new Ohlc(errors, pairOrderBookEntries);
+        {
+            _nextReadResult = jsonReader.ReadNext();
+            jsonReader.TrySkip();
+            return new OrderBook(errors, pairOrderBookEntries);
+        }
 
         return new Error(UnexpectedTokenErrorCode, $"Unexpected End of Error Array: {_nextReadResult.Error}");
     }
 
-    public override void Write(Utf8JsonWriter writer, Result<Ohlc> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Result<OrderBook> value, JsonSerializerOptions options)
     {
         throw new NotImplementedException();
     }
