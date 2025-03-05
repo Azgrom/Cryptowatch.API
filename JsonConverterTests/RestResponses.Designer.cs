@@ -50,5 +50,59 @@ namespace JsonConverterTests {
                 return ResourceManager.GetString("ValidAssetPairResponse", resourceCulture);
             }
         }
+        
+        internal static string OrderBookExample {
+            get {
+                return ResourceManager.GetString("OrderBookExample", resourceCulture);
+            }
+        }
+        
+        internal static string ServerTimeExample {
+            get {
+                return ResourceManager.GetString("ServerTimeExample", resourceCulture);
+            }
+        }
+        
+        internal static string SystemStatusExample {
+            get {
+                return ResourceManager.GetString("SystemStatusExample", resourceCulture);
+            }
+        }
+        
+        internal static string AssetInfoExample {
+            get {
+                return ResourceManager.GetString("AssetInfoExample", resourceCulture);
+            }
+        }
+        
+        internal static string TradableAssetPairExample {
+            get {
+                return ResourceManager.GetString("TradableAssetPairExample", resourceCulture);
+            }
+        }
+        
+        internal static string TickerInformationExample {
+            get {
+                return ResourceManager.GetString("TickerInformationExample", resourceCulture);
+            }
+        }
+        
+        internal static string OhlcDataExample {
+            get {
+                return ResourceManager.GetString("OhlcDataExample", resourceCulture);
+            }
+        }
+        
+        internal static string RecentTradesExample {
+            get {
+                return ResourceManager.GetString("RecentTradesExample", resourceCulture);
+            }
+        }
+        
+        internal static string RecentSpreadsExample {
+            get {
+                return ResourceManager.GetString("RecentSpreadsExample", resourceCulture);
+            }
+        }
     }
 }
