@@ -1,12 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using BenchmarkDotNet.Running;
 
-using BenchmarkDotNet.Running;
-using Benchmarks;
+namespace Benchmarks;
 
-internal class Program
+internal static class Program
 {
     public static void Main(string[] args)
     {
         var summary = BenchmarkRunner.Run<JsonConvertersBenchmarks>();
+        //var summary = BenchmarkRunner.Run<KrakenApiBenchmarks>();
     }
 }

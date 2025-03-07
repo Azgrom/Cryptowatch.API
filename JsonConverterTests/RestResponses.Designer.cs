@@ -45,7 +45,7 @@ namespace JsonConverterTests {
             }
         }
         
-        internal static string ValidAssetPairResponse {
+        internal static string ValidOrderBookResponse {
             get {
                 return ResourceManager.GetString("ValidAssetPairResponse", resourceCulture);
             }

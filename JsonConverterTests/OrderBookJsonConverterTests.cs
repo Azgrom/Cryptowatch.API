@@ -19,7 +19,7 @@ public class OrderBookJsonConverterTests
     [Fact]
     public void Test1()
     {
-        var utf8JsonReader = Helper.CreateReader(RestResponses.ValidAssetPairResponse);
+        var utf8JsonReader = Helper.CreateReader(RestResponses.ValidOrderBookResponse);
         var jsonConverter  = new OrderBookJsonConverter();
 
         var ohlcJsonConverter      = jsonConverter.IntoOhlc(ref utf8JsonReader);

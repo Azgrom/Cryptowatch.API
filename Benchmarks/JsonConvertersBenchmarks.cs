@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using BenchmarkDotNet.Attributes;
 using JsonConverterTests;
+using Kraken.REST.API;
 
 namespace Benchmarks;
 
@@ -11,19 +12,14 @@ namespace Benchmarks;
 [ThreadingDiagnoser]
 public class JsonConvertersBenchmarks
 {
-    internal static string x = RestResponses.ValidAssetPairResponse;
+    private static readonly byte[] OrderBookResponseBytes
+        = Encoding.UTF8.GetBytes(RestResponses.ValidOrderBookResponse);
+    private static readonly OrderBookJsonConverter OrderBookJsonConverter = new();
 
     [Benchmark]
-    public void T()
+    public void DeserializeOrderBook()
     {
-        var _ = Encoding.UTF8.GetBytes(x);
-    }
-
-    [Benchmark]
-    public void R()
-    {
-        // var utf8JsonReader = new Utf8JsonReader(y);
-        //
-        // var _ = Ohlc.FromJson(ref utf8JsonReader);
+        var utf8JsonReader = new Utf8JsonReader(OrderBookResponseBytes);
+        OrderBookJsonConverter.IntoOhlc(ref utf8JsonReader);
     }
 }
