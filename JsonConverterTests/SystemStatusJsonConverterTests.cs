@@ -20,15 +20,17 @@ public class SystemStatusJsonConverterTests
     [Fact]
     public void Deserialize_ValidJson_ReturnsSystemStatus()
     {
-        string json = @"{
-            ""error"": [],
-            ""result"": {
-                ""status"": ""online"",
-                ""timestamp"": ""2023-07-06T18:52:00Z""
-            }
-        }";
+        string json = """
+                      {
+                          "error": [],
+                          "result": {
+                              "status": "online",
+                              "timestamp": "2023-07-06T18:52:00Z"
+                          }
+                      }
+                      """;
 
-        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(RestResponses.SystemStatusExample, _options);
         Assert.True(result.IsSuccess, "Expected a successful result");
         Assert.Equal("online",               result.Value.Status);
         Assert.Equal("2023-07-06T18:52:00Z", result.Value.Timestamp);

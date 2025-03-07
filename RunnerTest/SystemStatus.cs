@@ -27,15 +27,17 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
         try
         {
             // Begin reading the root object.
-            var nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("StartReadingError", nextResult.Error);
+            if (jsonReader.TokenType is JsonTokenType.None)
+            {
+                if (jsonReader.ReadNext().IsFailure)
+                    return new Error("StartReadingError", jsonReader.ReadNext().Error);
+            }
 
             if (jsonReader.TokenType != JsonTokenType.StartObject)
                 return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
 
             // Read the first property, expected to be "error"
-            nextResult = jsonReader.ReadNext();
+            var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
                 return new Error("ReadingTokenError", nextResult.Error);
 
@@ -125,7 +127,14 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
 
             // Ensure both properties were found.
             if (!foundStatus)
+            {
+                while (jsonReader.ReadNext().IsSuccess&& jsonReader.CurrentDepth is not 0)
+                {
+                }
+
                 return new Error("MissingPropertyError", "Missing property 'status' in result");
+            }
+
             if (!foundTimestamp)
                 return new Error("MissingPropertyError", "Missing property 'timestamp' in result");
 
