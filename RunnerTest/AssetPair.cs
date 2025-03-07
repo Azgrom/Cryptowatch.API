@@ -62,15 +62,17 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
         try
         {
             // Begin reading the root object.
-            var nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("StartReadingError", nextResult.Error);
+            if (jsonReader.TokenType is JsonTokenType.None)
+            {
+                if (jsonReader.ReadNext().IsFailure)
+                    return new Error("StartReadingError", jsonReader.ReadNext().Error);
+            }
 
             if (jsonReader.TokenType != JsonTokenType.StartObject)
                 return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
 
             // Read the "error" property.
-            nextResult = jsonReader.ReadNext();
+            var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
                 return new Error("ReadingTokenError", nextResult.Error);
 
