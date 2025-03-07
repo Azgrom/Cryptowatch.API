@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace RunnerTest;
+namespace Kraken.REST.API;
 
 // Record representing a trading asset pair.
 public record AssetPair

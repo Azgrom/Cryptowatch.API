@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace RunnerTest;
+namespace Kraken.REST.API;
 
 /// <summary>
 ///  Represents the ticker information for an asset.

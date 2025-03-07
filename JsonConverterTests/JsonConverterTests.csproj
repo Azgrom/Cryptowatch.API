@@ -24,10 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RunnerTest\RunnerTest.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <EmbeddedResource Update="RestResponses.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>RestResponses.Designer.cs</LastGenOutput>
@@ -44,6 +40,10 @@
 
     <ItemGroup>
       <InternalsVisibleTo Include="Benchmarks" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Kraken.REST.API\Kraken.REST.API.csproj" />
     </ItemGroup>
 
 </Project>

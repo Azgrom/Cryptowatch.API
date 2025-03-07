@@ -2,6 +2,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
+namespace Kraken.REST.API;
+
 public sealed record ServerTime
 {
     public ServerTime(long unixtime, string rfc1123)
@@ -17,8 +19,8 @@ public sealed record ServerTime
 public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTime>>
 {
     public override Result<ServerTime> Read(
-        ref Utf8JsonReader jsonReader, 
-        Type typeToConvert, 
+        ref Utf8JsonReader    jsonReader, 
+        Type                  typeToConvert, 
         JsonSerializerOptions options)
     {
         try
@@ -76,10 +78,10 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                     $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
 
             // Prepare to read properties from the result object.
-            long unixtime = 0;
-            string rfc1123 = string.Empty;
-            bool foundUnixtime = false;
-            bool foundRfc1123 = false;
+            long   unixtime      = 0;
+            string rfc1123       = string.Empty;
+            bool   foundUnixtime = false;
+            bool   foundRfc1123  = false;
 
             // Loop through the result properties.
             while (true)
@@ -107,7 +109,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                     {
                         if (jsonReader.TryGetInt64(out long value))
                         {
-                            unixtime = value;
+                            unixtime      = value;
                             foundUnixtime = true;
                         }
                         else
@@ -119,9 +121,9 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                     {
                         // Allow string representation of the number.
                         var str = jsonReader.GetString();
-                        if (long.TryParse(str, out long value))
+                        if (long.TryParse((string?)str, out long value))
                         {
-                            unixtime = value;
+                            unixtime      = value;
                             foundUnixtime = true;
                         }
                         else
@@ -139,7 +141,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                 {
                     if (jsonReader.TokenType == JsonTokenType.String)
                     {
-                        rfc1123 = jsonReader.GetString();
+                        rfc1123      = jsonReader.GetString();
                         foundRfc1123 = true;
                     }
                     else
@@ -178,8 +180,8 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
     }
 
     public override void Write(
-        Utf8JsonWriter writer, 
-        Result<ServerTime> value, 
+        Utf8JsonWriter        writer, 
+        Result<ServerTime>    value, 
         JsonSerializerOptions options)
     {
         // For demonstration we provide a basic implementation.

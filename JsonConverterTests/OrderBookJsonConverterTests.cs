@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
+using Kraken.REST.API;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using RunnerTest;
 
 namespace JsonConverterTests;
 

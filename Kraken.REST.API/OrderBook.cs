@@ -3,9 +3,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
-using Microsoft.Extensions.Logging;
 
-namespace RunnerTest;
+namespace Kraken.REST.API;
 
 public sealed record OrderBook
 {

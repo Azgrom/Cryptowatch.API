@@ -14,7 +14,7 @@
         <RepositoryUrl>https://github.com/Azgrom/Cryptowatch.API/tree/master</RepositoryUrl>
         <Description>A client for interacting with the CryptoWatch REST API</Description>
         <PackageIcon>cryptowat.ch.png</PackageIcon>
-        <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +29,10 @@
     <ItemGroup>
         <None Include="../README.md" Pack="true" PackagePath="/"/>
         <None Include="lib.png" Pack="true" PackagePath="/" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CoreAbstractions\CoreAbstractions.csproj" />
     </ItemGroup>
 
 </Project>

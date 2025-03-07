@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json;
 using BenchmarkDotNet.Attributes;
 using JsonConverterTests;
-using RunnerTest;
 
 namespace Benchmarks;
 

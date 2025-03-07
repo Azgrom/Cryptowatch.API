@@ -1,11 +1,8 @@
-using System.Buffers;
-using System.Diagnostics;
-using System.Text;
 using System.Text.Json;
 using CoreAbstractions;
 using Microsoft.Extensions.Logging;
 
-namespace RunnerTest;
+namespace Kraken.REST.API;
 
 public class KrakenJsonDeserializerPool
 {
