@@ -23,14 +23,6 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
     private const uint          PricePositionInBookArray      = 1;
     private const uint          VolumePositionInBookArray     = 2;
     private const uint          TimestampPositionInBookArray  = 3;
-    public const  string        StartReadingErrorCode         = "StartReadingError";
-    public const  string        ReadingTokenErrorCode         = "ReadingTokenError";
-    public const  string        UnexpectedTokenErrorCode      = "UnexpectedTokenError";
-    public const  string        EnteringObjectErrorCode       = "EnteringObjectError";
-    public const  string        EnteringArrayErrorCode        = "EnteringArrayError";
-    public const  string        UnknownPropertyErrorCode      = "UnknownPropertyError";
-    public const  string        EnteringPropertyNameErrorCode = "EnteringPropertyNameError";
-    public const  string        ReadingBookPropertyErrorCode  = "ReadingBookPropertyError";
     private       Result        _nextReadResult               = Error.NullValue;
     private       JsonTokenType _tokenType                    = JsonTokenType.None;
     private       BookBuilder   _bookBuilder                  = BookBuilder.Create();
@@ -50,7 +42,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
         }
         else
         {
-            _nextReadResult = new Error(StartReadingErrorCode, _nextReadResult.Error);
+            _nextReadResult = new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
         }
 
         if (_tokenType is JsonTokenType.StartObject && _nextReadResult.IsSuccess)
@@ -62,7 +54,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             }
             else
             {
-                _nextReadResult = new Error(EnteringObjectErrorCode, _nextReadResult.Error);
+                _nextReadResult = new Error(ErrorCodes.EnteringObjectErrorCode, _nextReadResult.Error);
             }
         }
         else
@@ -90,7 +82,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
         }
 
         _nextReadResult = jsonReader.ReadNext();
-        if (_nextReadResult.IsFailure) return new Error(ReadingTokenErrorCode, _nextReadResult.Error);
+        if (_nextReadResult.IsFailure) return new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
 
         _tokenType = jsonReader.TokenType;
         var resultPropertyName = jsonReader.ValueTextEquals("result");
@@ -110,7 +102,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
         }
 
         _nextReadResult = jsonReader.ReadNext();
-        if (_nextReadResult.IsFailure) return new Error(ReadingTokenErrorCode, _nextReadResult.Error);
+        if (_nextReadResult.IsFailure) return new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
 
         _tokenType = jsonReader.TokenType;
 
@@ -128,7 +120,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             return new OrderBook(errors, pairOrderBookEntries);
         }
 
-        return new Error(UnexpectedTokenErrorCode, $"Unexpected End of Error Array: {_nextReadResult.Error}");
+        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Unexpected End of Error Array: {_nextReadResult.Error}");
     }
 
     public override void Write(Utf8JsonWriter writer, Result<OrderBook> value, JsonSerializerOptions options)
@@ -139,7 +131,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
     private static Error UnknownPropertyResult(ref Utf8JsonReader jsonReader)
     {
         var propName = Encoding.UTF8.GetString(jsonReader.ValueSequence);
-        return new Error(UnknownPropertyErrorCode, propName);
+        return new Error(ErrorCodes.UnknownPropertyErrorCode, propName);
     }
 
     private Result<string[]> ErrorSweep(ref Utf8JsonReader jsonReader)
@@ -151,7 +143,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
         }
         else
         {
-            return new Error(StartReadingErrorCode, _nextReadResult.Error);
+            return new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
         }
 
         if (_tokenType is JsonTokenType.StartArray)
@@ -163,7 +155,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             }
             else
             {
-                return new Error(EnteringArrayErrorCode, _nextReadResult.Error);
+                return new Error(ErrorCodes.EnteringArrayErrorCode, _nextReadResult.Error);
             }
         }
 
@@ -183,13 +175,13 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             }
             else
             {
-                return new Error(ReadingTokenErrorCode, _nextReadResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
             }
         }
 
         if (_tokenType is JsonTokenType.EndArray) return errors.ToArray();
 
-        return new Error(UnexpectedTokenErrorCode, "Unexpected End of Error Array");
+        return new Error(ErrorCodes.UnexpectedTokenErrorCode, "Unexpected End of Error Array");
     }
 
     private Result<List<PairOrderBookEntries>> ResultSweep(ref Utf8JsonReader jsonReader)
@@ -198,13 +190,13 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
         _nextReadResult = jsonReader.ReadNext();
         if (_nextReadResult.IsFailure)
         {
-            error = new Error(StartReadingErrorCode, _nextReadResult.Error);
+            error = new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
         }
 
         _tokenType = jsonReader.TokenType;
         if (_tokenType is not JsonTokenType.StartObject)
         {
-            error = new Error(EnteringObjectErrorCode, _nextReadResult.Error);
+            error = new Error(ErrorCodes.EnteringObjectErrorCode, _nextReadResult.Error);
         }
 
         var pairOrderBookSpan = new List<PairOrderBookEntries>(1);
@@ -226,7 +218,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
             if (_nextReadResult.IsFailure || _tokenType != JsonTokenType.PropertyName)
             {
-                error = new Error(EnteringPropertyNameErrorCode,
+                error = new Error(ErrorCodes.EnteringPropertyNameErrorCode,
                     _nextReadResult.Error);
             }
 
@@ -237,7 +229,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
             if (_nextReadResult.IsFailure || _tokenType is not JsonTokenType.StartObject)
             {
-                error = new Error(EnteringObjectErrorCode, _nextReadResult.Error);
+                error = new Error(ErrorCodes.EnteringObjectErrorCode, _nextReadResult.Error);
             }
 
             _bookBuilder.CollectAsks(ref jsonReader);
@@ -295,7 +287,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             if (_nextReadResult.IsFailure || _tokenType is not JsonTokenType.PropertyName ||
                 !asksPropertyName)
             {
-                _nextReadResult = new Error(EnteringPropertyNameErrorCode,
+                _nextReadResult = new Error(ErrorCodes.EnteringPropertyNameErrorCode,
                     _nextReadResult.Error);
                 return;
             }
@@ -304,7 +296,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
             if (_nextReadResult.IsFailure)
             {
-                _nextReadResult = new Error(EnteringPropertyNameErrorCode,
+                _nextReadResult = new Error(ErrorCodes.EnteringPropertyNameErrorCode,
                     _nextReadResult.Error);
                 return;
             }
@@ -321,7 +313,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
                     if (_nextReadResult.IsSuccess) continue;
 
-                    _nextReadResult = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    _nextReadResult = new Error(ErrorCodes.ReadingBookPropertyErrorCode, _nextReadResult.Error);
                     return;
                 }
 
@@ -338,7 +330,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
                     if (_nextReadResult.IsSuccess) continue;
 
-                    _nextReadResult = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    _nextReadResult = new Error(ErrorCodes.ReadingBookPropertyErrorCode, _nextReadResult.Error);
                     return;
                 }
 
@@ -357,7 +349,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
                     if (_nextReadResult.IsSuccess) continue;
 
-                    _nextReadResult = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    _nextReadResult = new Error(ErrorCodes.ReadingBookPropertyErrorCode, _nextReadResult.Error);
                     return;
                 }
             }
@@ -371,7 +363,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
             if (_nextReadResult.IsFailure || _tokenType is not JsonTokenType.PropertyName || !bidsPropertyName)
             {
-                _nextReadResult = new Error(EnteringPropertyNameErrorCode,
+                _nextReadResult = new Error(ErrorCodes.EnteringPropertyNameErrorCode,
                     _nextReadResult.Error);
                 return;
             }
@@ -380,7 +372,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
             if (_nextReadResult.IsFailure)
             {
-                _nextReadResult = new Error(EnteringPropertyNameErrorCode,
+                _nextReadResult = new Error(ErrorCodes.EnteringPropertyNameErrorCode,
                     _nextReadResult.Error);
                 return;
             }
@@ -397,7 +389,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
                     if (_nextReadResult.IsSuccess) continue;
 
-                    _nextReadResult = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    _nextReadResult = new Error(ErrorCodes.ReadingBookPropertyErrorCode, _nextReadResult.Error);
                     return;
                 }
 
@@ -414,7 +406,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
                     if (_nextReadResult.IsSuccess) continue;
 
-                    _nextReadResult = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    _nextReadResult = new Error(ErrorCodes.ReadingBookPropertyErrorCode, _nextReadResult.Error);
                     return;
                 }
 
@@ -433,7 +425,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
                     if (_nextReadResult.IsSuccess) continue;
 
-                    _nextReadResult = new Error(ReadingBookPropertyErrorCode, _nextReadResult.Error);
+                    _nextReadResult = new Error(ErrorCodes.ReadingBookPropertyErrorCode, _nextReadResult.Error);
                     return;
                 }
             }

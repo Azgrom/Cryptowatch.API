@@ -34,12 +34,12 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
             }
 
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject but found {jsonReader.TokenType}");
 
             // Read the first property, expected to be "error"
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             string[] errors = Array.Empty<string>();
             if (jsonReader.TokenType == JsonTokenType.PropertyName && jsonReader.ValueTextEquals("error"))
@@ -51,29 +51,29 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
             }
             else
             {
-                return new Error("UnknownPropertyError",
+                return new Error(ErrorCodes.UnknownPropertyErrorCode,
                     $"Expected 'error' property but found '{jsonReader.GetString()}'");
             }
 
             // Read the next property, expected to be "result".
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType != JsonTokenType.PropertyName ||
                 !jsonReader.ValueTextEquals("result"))
             {
-                return new Error("UnknownPropertyError",
+                return new Error(ErrorCodes.UnknownPropertyErrorCode,
                     $"Expected 'result' property but found '{jsonReader.GetString()}'");
             }
 
             // Read the value of "result"
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError",
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
 
             // Initialize variables for the expected properties.
@@ -87,25 +87,25 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
             {
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
                 // End of "result" object.
                 if (jsonReader.TokenType == JsonTokenType.EndObject)
                     break;
 
                 if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                    return new Error("UnexpectedTokenError",
+                    return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                         $"Expected property name but found {jsonReader.TokenType}");
 
                 string propertyName = jsonReader.GetString();
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
                 if (propertyName == "status")
                 {
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError",
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                             $"Expected string for 'status' but found {jsonReader.TokenType}");
                     status = jsonReader.GetString();
                     foundStatus = true;
@@ -113,7 +113,7 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
                 else if (propertyName == "timestamp")
                 {
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError",
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                             $"Expected string for 'timestamp' but found {jsonReader.TokenType}");
                     timestamp = jsonReader.GetString();
                     foundTimestamp = true;
@@ -132,11 +132,11 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
                 {
                 }
 
-                return new Error("MissingPropertyError", "Missing property 'status' in result");
+                return new Error(ErrorCodes.MissingPropertyErrorCode, "Missing property 'status' in result");
             }
 
             if (!foundTimestamp)
-                return new Error("MissingPropertyError", "Missing property 'timestamp' in result");
+                return new Error(ErrorCodes.MissingPropertyErrorCode, "Missing property 'timestamp' in result");
 
             // Validate the "status" value.
             if (Array.IndexOf(AllowedStatuses, status) < 0)
@@ -149,9 +149,9 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
             // Read the end of the root object.
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.EndObject)
-                return new Error("UnexpectedTokenError",
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected EndObject for root but found {jsonReader.TokenType}");
 
             // Return the successfully parsed SystemStatus.
@@ -199,7 +199,7 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
             return new Error("StartReadingError", nextResult.Error);
 
         if (jsonReader.TokenType != JsonTokenType.StartArray)
-            return new Error("UnexpectedTokenError",
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                 $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
 
         var errors = new List<string>();
@@ -207,7 +207,7 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
         {
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
@@ -215,7 +215,7 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
             if (jsonReader.TokenType == JsonTokenType.String)
                 errors.Add(jsonReader.GetString());
             else
-                return new Error("UnexpectedTokenError",
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected string in error array but found {jsonReader.TokenType}");
         }
         return errors.ToArray();

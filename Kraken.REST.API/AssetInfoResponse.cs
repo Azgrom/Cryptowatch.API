@@ -48,89 +48,82 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
 
     public override Result<AssetInfoResponse> Read(ref Utf8JsonReader jsonReader, Type typeToConvert, JsonSerializerOptions options)
     {
-        try
+        // Begin reading the root object.
+        var nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
+
+        if (jsonReader.TokenType != JsonTokenType.StartObject)
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject but found {jsonReader.TokenType}");
+
+        // Read the "error" property.
+        nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+
+        if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("error"))
+            return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'error' property but found '{jsonReader.GetString()}'");
+
+        var errorSweepResult = ErrorSweep(ref jsonReader);
+        if (errorSweepResult.IsFailure)
+            return new Error(ErrorCodes.SweepingPropertyErrorCode, $"Sweeping errors returned {errorSweepResult.Error}");
+        // (The errors array is parsed but not used further.)
+
+        // Read the next property, which must be "result".
+        nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+
+        if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("result"))
+            return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'result' property but found '{jsonReader.GetString()}'");
+
+        // Read the value for "result".
+        nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+
+        if (jsonReader.TokenType != JsonTokenType.StartObject)
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
+
+        var assets = new Dictionary<string, AssetInfo>();
+
+        // Loop through all properties in the "result" object.
+        while (true)
         {
-            // Begin reading the root object.
-            var nextResult = jsonReader.ReadNext();
+            nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("StartReadingError", nextResult.Error);
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
 
+            if (jsonReader.TokenType == JsonTokenType.EndObject)
+                break; // End of "result" object.
+
+            if (jsonReader.TokenType != JsonTokenType.PropertyName)
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected property name in 'result' but found {jsonReader.TokenType}");
+
+            string assetKey = jsonReader.GetString();
+
+            // Read the asset info object.
+            nextResult = jsonReader.ReadNext();
+            if (nextResult.IsFailure)
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject for asset '{assetKey}' but found {jsonReader.TokenType}");
 
-            // Read the "error" property.
-            nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+            var assetInfoResult = ReadAssetInfo(ref jsonReader, assetKey);
+            if (assetInfoResult.IsFailure)
+                return assetInfoResult.Error;
 
-            if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("error"))
-                return new Error("UnknownPropertyError", $"Expected 'error' property but found '{jsonReader.GetString()}'");
-
-            var errorSweepResult = ErrorSweep(ref jsonReader);
-            if (errorSweepResult.IsFailure)
-                return new Error("ErrorSweep", errorSweepResult.Error);
-            // (The errors array is parsed but not used further.)
-
-            // Read the next property, which must be "result".
-            nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
-
-            if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("result"))
-                return new Error("UnknownPropertyError", $"Expected 'result' property but found '{jsonReader.GetString()}'");
-
-            // Read the value for "result".
-            nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
-
-            if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
-
-            var assets = new Dictionary<string, AssetInfo>();
-
-            // Loop through all properties in the "result" object.
-            while (true)
-            {
-                nextResult = jsonReader.ReadNext();
-                if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
-
-                if (jsonReader.TokenType == JsonTokenType.EndObject)
-                    break; // End of "result" object.
-
-                if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                    return new Error("UnexpectedTokenError", $"Expected property name in 'result' but found {jsonReader.TokenType}");
-
-                string assetKey = jsonReader.GetString();
-
-                // Read the asset info object.
-                nextResult = jsonReader.ReadNext();
-                if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
-                if (jsonReader.TokenType != JsonTokenType.StartObject)
-                    return new Error("UnexpectedTokenError", $"Expected StartObject for asset '{assetKey}' but found {jsonReader.TokenType}");
-
-                var assetInfoResult = ReadAssetInfo(ref jsonReader, assetKey);
-                if (assetInfoResult.IsFailure)
-                    return assetInfoResult.Error;
-
-                assets.Add(assetKey, assetInfoResult.Value);
-            }
-
-            // Read the end of the root object.
-            nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
-            if (jsonReader.TokenType != JsonTokenType.EndObject)
-                return new Error("UnexpectedTokenError", $"Expected EndObject for root but found {jsonReader.TokenType}");
-
-            return new AssetInfoResponse(assets);
+            assets.Add(assetKey, assetInfoResult.Value);
         }
-        catch (Exception ex)
-        {
-            return new Error("Exception", ex.Message);
-        }
+
+        // Read the end of the root object.
+        nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+        if (jsonReader.TokenType != JsonTokenType.EndObject)
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected EndObject for root but found {jsonReader.TokenType}");
+
+        return new AssetInfoResponse(assets);
     }
 
     public override void Write(Utf8JsonWriter writer, Result<AssetInfoResponse> value, JsonSerializerOptions options)
@@ -190,57 +183,57 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
         {
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType == JsonTokenType.EndObject)
                 break; // End of current asset object.
 
             if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                return new Error("UnexpectedTokenError", $"Expected property name in asset '{assetKey}' but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected property name in asset '{assetKey}' but found {jsonReader.TokenType}");
 
             string propertyName = jsonReader.GetString();
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
 
             switch (propertyName)
             {
                 case "aclass":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'aclass' in asset '{assetKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'aclass' in asset '{assetKey}', found {jsonReader.TokenType}");
                     aclass      = jsonReader.GetString();
                     foundAclass = true;
                     break;
                 case "altname":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'altname' in asset '{assetKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'altname' in asset '{assetKey}', found {jsonReader.TokenType}");
                     altname      = jsonReader.GetString();
                     foundAltname = true;
                     break;
                 case "decimals":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'decimals' in asset '{assetKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'decimals' in asset '{assetKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out decimals))
                         return new Error("ParsingError", $"Failed to parse 'decimals' as integer for asset '{assetKey}'");
                     foundDecimals = true;
                     break;
                 case "display_decimals":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'display_decimals' in asset '{assetKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'display_decimals' in asset '{assetKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out display_decimals))
                         return new Error("ParsingError", $"Failed to parse 'display_decimals' as integer for asset '{assetKey}'");
                     foundDisplayDecimals = true;
                     break;
                 case "collateral_value":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'collateral_value' in asset '{assetKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'collateral_value' in asset '{assetKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetDecimal(out collateral_value))
                         return new Error("ParsingError", $"Failed to parse 'collateral_value' as decimal for asset '{assetKey}'");
                     foundCollateralValue = true;
                     break;
                 case "status":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'status' in asset '{assetKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'status' in asset '{assetKey}', found {jsonReader.TokenType}");
                     status      = jsonReader.GetString();
                     foundStatus = true;
                     break;
@@ -253,21 +246,21 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
 
         // Ensure all required properties are present.
         if (!foundAclass)
-            return new Error("MissingPropertyError", $"Missing property 'aclass' for asset '{assetKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'aclass' for asset '{assetKey}'");
         if (!foundAltname)
-            return new Error("MissingPropertyError", $"Missing property 'altname' for asset '{assetKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'altname' for asset '{assetKey}'");
         if (!foundDecimals)
-            return new Error("MissingPropertyError", $"Missing property 'decimals' for asset '{assetKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'decimals' for asset '{assetKey}'");
         if (!foundDisplayDecimals)
-            return new Error("MissingPropertyError", $"Missing property 'display_decimals' for asset '{assetKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'display_decimals' for asset '{assetKey}'");
         if (!foundCollateralValue)
-            return new Error("MissingPropertyError", $"Missing property 'collateral_value' for asset '{assetKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'collateral_value' for asset '{assetKey}'");
         if (!foundStatus)
-            return new Error("MissingPropertyError", $"Missing property 'status' for asset '{assetKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'status' for asset '{assetKey}'");
 
         // Validate that the status is one of the allowed values.
         if (Array.IndexOf(AllowedStatuses, status) < 0)
-            return new Error("InvalidValueError", $"Invalid status value '{status}' for asset '{assetKey}'");
+            return new Error(ErrorCodes.InvalidValueErrorCode, $"Invalid status value '{status}' for asset '{assetKey}'");
 
         return new AssetInfo
         {
@@ -287,17 +280,17 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
     {
         var nextResult = jsonReader.ReadNext();
         if (nextResult.IsFailure)
-            return new Error("StartReadingError", nextResult.Error);
+            return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
         if (jsonReader.TokenType != JsonTokenType.StartArray)
-            return new Error("UnexpectedTokenError", $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
 
         var errors = new List<string>();
         while (true)
         {
             var r = jsonReader.ReadNext();
             if (r.IsFailure)
-                return new Error("ReadingTokenError", r.Error);
+                return new Error(ErrorCodes.ReadingTokenErrorCode, r.Error);
 
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
@@ -305,7 +298,7 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
             if (jsonReader.TokenType == JsonTokenType.String)
                 errors.Add(jsonReader.GetString());
             else
-                return new Error("UnexpectedTokenError", $"Expected string in error array but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string in error array but found {jsonReader.TokenType}");
         }
         return errors.ToArray();
     }

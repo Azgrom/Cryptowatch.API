@@ -33,12 +33,12 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
             }
 
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject but found {jsonReader.TokenType}");
 
             // Read first property – should be "error".
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             string[] errors = Array.Empty<string>();
 
@@ -52,29 +52,29 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
             }
             else
             {
-                return new Error("UnknownPropertyError",
+                return new Error(ErrorCodes.UnknownPropertyErrorCode,
                     $"Expected 'error' property but found '{jsonReader.GetString()}'");
             }
 
             // Read next property – should be "result".
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType != JsonTokenType.PropertyName ||
                 !jsonReader.ValueTextEquals("result"))
             {
-                return new Error("UnknownPropertyError",
+                return new Error(ErrorCodes.UnknownPropertyErrorCode,
                     $"Expected 'result' property but found '{jsonReader.GetString()}'");
             }
 
             // Read the value of "result"
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError",
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
 
             // Prepare to read properties from the result object.
@@ -88,20 +88,20 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
             {
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
                 // End of the "result" object.
                 if (jsonReader.TokenType == JsonTokenType.EndObject)
                     break;
 
                 if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                    return new Error("UnexpectedTokenError",
+                    return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                         $"Expected a property name but found {jsonReader.TokenType}");
 
                 string propName = jsonReader.GetString();
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
                 if (propName == "unixtime")
                 {
@@ -133,7 +133,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                     }
                     else
                     {
-                        return new Error("UnexpectedTokenError",
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                             $"Expected Number or String for unixtime but found {jsonReader.TokenType}");
                     }
                 }
@@ -146,7 +146,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                     }
                     else
                     {
-                        return new Error("UnexpectedTokenError",
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                             $"Expected String for rfc1123 but found {jsonReader.TokenType}");
                     }
                 }
@@ -158,15 +158,15 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
             }
 
             if (!foundUnixtime || !foundRfc1123)
-                return new Error("MissingPropertyError",
+                return new Error(ErrorCodes.MissingPropertyErrorCode,
                     "Result object must contain both 'unixtime' and 'rfc1123'");
 
             // Read the end of the root object.
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.EndObject)
-                return new Error("UnexpectedTokenError",
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected EndObject for root but found {jsonReader.TokenType}");
 
             var timeInfo = new ServerTime(unixtime, rfc1123);
@@ -217,7 +217,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
             return new Error("StartReadingError", nextResult.Error);
 
         if (jsonReader.TokenType != JsonTokenType.StartArray)
-            return new Error("UnexpectedTokenError",
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                 $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
 
         var errors = new List<string>();
@@ -225,7 +225,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
         {
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
@@ -233,7 +233,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
             if (jsonReader.TokenType == JsonTokenType.String)
                 errors.Add(jsonReader.GetString());
             else
-                return new Error("UnexpectedTokenError",
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected String in error array but found {jsonReader.TokenType}");
         }
         return errors.ToArray();

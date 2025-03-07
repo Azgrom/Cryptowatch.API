@@ -59,89 +59,82 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
 
     public override Result<AssetPairResponse> Read(ref Utf8JsonReader jsonReader, Type typeToConvert, JsonSerializerOptions options)
     {
-        try
+        // Begin reading the root object.
+        if (jsonReader.TokenType is JsonTokenType.None)
         {
-            // Begin reading the root object.
-            if (jsonReader.TokenType is JsonTokenType.None)
-            {
-                if (jsonReader.ReadNext().IsFailure)
-                    return new Error("StartReadingError", jsonReader.ReadNext().Error);
-            }
+            if (jsonReader.ReadNext().IsFailure)
+                return new Error(ErrorCodes.StartReadingErrorCode, jsonReader.ReadNext().Error);
+        }
+
+        if (jsonReader.TokenType != JsonTokenType.StartObject)
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject but found {jsonReader.TokenType}");
+
+        // Read the "error" property.
+        var nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+
+        if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("error"))
+            return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'error' property but found '{jsonReader.GetString()}'");
+
+        var errorSweepResult = ErrorSweep(ref jsonReader);
+        if (errorSweepResult.IsFailure)
+            return new Error(ErrorCodes.SweepingPropertyErrorCode, errorSweepResult.Error);
+        // The errors array is parsed but not further used.
+
+        // Read next property, which must be "result".
+        nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+
+        if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("result"))
+            return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'result' property but found '{jsonReader.GetString()}'");
+
+        nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+
+        if (jsonReader.TokenType != JsonTokenType.StartObject)
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
+
+        var pairs = new Dictionary<string, AssetPair>();
+
+        // Loop through each asset pair property in the "result" object.
+        while (true)
+        {
+            nextResult = jsonReader.ReadNext();
+            if (nextResult.IsFailure)
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+
+            if (jsonReader.TokenType == JsonTokenType.EndObject)
+                break; // End of the "result" object.
+
+            if (jsonReader.TokenType != JsonTokenType.PropertyName)
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected property name in 'result' but found {jsonReader.TokenType}");
+
+            string pairKey = jsonReader.GetString();
+
+            nextResult = jsonReader.ReadNext();
+            if (nextResult.IsFailure)
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject for asset pair '{pairKey}' but found {jsonReader.TokenType}");
 
-            // Read the "error" property.
-            var nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+            var assetPairResult = ReadAssetPair(ref jsonReader, pairKey);
+            if (assetPairResult.IsFailure)
+                return assetPairResult.Error;
 
-            if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("error"))
-                return new Error("UnknownPropertyError", $"Expected 'error' property but found '{jsonReader.GetString()}'");
-
-            var errorSweepResult = ErrorSweep(ref jsonReader);
-            if (errorSweepResult.IsFailure)
-                return new Error("ErrorSweep", errorSweepResult.Error);
-            // The errors array is parsed but not further used.
-
-            // Read next property, which must be "result".
-            nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
-
-            if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("result"))
-                return new Error("UnknownPropertyError", $"Expected 'result' property but found '{jsonReader.GetString()}'");
-
-            nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
-
-            if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
-
-            var pairs = new Dictionary<string, AssetPair>();
-
-            // Loop through each asset pair property in the "result" object.
-            while (true)
-            {
-                nextResult = jsonReader.ReadNext();
-                if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
-
-                if (jsonReader.TokenType == JsonTokenType.EndObject)
-                    break; // End of the "result" object.
-
-                if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                    return new Error("UnexpectedTokenError", $"Expected property name in 'result' but found {jsonReader.TokenType}");
-
-                string pairKey = jsonReader.GetString();
-
-                nextResult = jsonReader.ReadNext();
-                if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
-
-                if (jsonReader.TokenType != JsonTokenType.StartObject)
-                    return new Error("UnexpectedTokenError", $"Expected StartObject for asset pair '{pairKey}' but found {jsonReader.TokenType}");
-
-                var assetPairResult = ReadAssetPair(ref jsonReader, pairKey);
-                if (assetPairResult.IsFailure)
-                    return assetPairResult.Error;
-
-                pairs.Add(pairKey, assetPairResult.Value);
-            }
-
-            nextResult = jsonReader.ReadNext();
-            if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
-            if (jsonReader.TokenType != JsonTokenType.EndObject)
-                return new Error("UnexpectedTokenError", $"Expected EndObject for root but found {jsonReader.TokenType}");
-
-            return new AssetPairResponse(pairs);
+            pairs.Add(pairKey, assetPairResult.Value);
         }
-        catch (Exception ex)
-        {
-            return new Error("Exception", ex.Message);
-        }
+
+        nextResult = jsonReader.ReadNext();
+        if (nextResult.IsFailure)
+            return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
+        if (jsonReader.TokenType != JsonTokenType.EndObject)
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected EndObject for root but found {jsonReader.TokenType}");
+
+        return new AssetPairResponse(pairs);
     }
 
     public override void Write(Utf8JsonWriter writer, Result<AssetPairResponse> value, JsonSerializerOptions options)
@@ -290,106 +283,106 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
         {
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
 
             if (jsonReader.TokenType == JsonTokenType.EndObject)
                 break;
 
             if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                return new Error("UnexpectedTokenError", $"Expected property name in asset pair '{pairKey}' but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected property name in asset pair '{pairKey}' but found {jsonReader.TokenType}");
 
             string propertyName = jsonReader.GetString();
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.ReadingTokenErrorCode, nextResult.Error);
 
             switch (propertyName)
             {
                 case "altname":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'altname' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'altname' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     altname       = jsonReader.GetString();
                     found_altname = true;
                     break;
                 case "wsname":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'wsname' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'wsname' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     wsname       = jsonReader.GetString();
                     found_wsname = true;
                     break;
                 case "aclass_base":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'aclass_base' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'aclass_base' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     aclass_base       = jsonReader.GetString();
                     found_aclass_base = true;
                     break;
                 case "base":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'base' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'base' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     _base      = jsonReader.GetString();
                     found_base = true;
                     break;
                 case "aclass_quote":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'aclass_quote' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'aclass_quote' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     aclass_quote       = jsonReader.GetString();
                     found_aclass_quote = true;
                     break;
                 case "quote":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'quote' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'quote' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     quote       = jsonReader.GetString();
                     found_quote = true;
                     break;
                 case "lot":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'lot' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'lot' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     lot       = jsonReader.GetString();
                     found_lot = true;
                     break;
                 case "pair_decimals":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'pair_decimals' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'pair_decimals' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out pair_decimals))
-                        return new Error("ParsingError", $"Failed to parse 'pair_decimals' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'pair_decimals' for asset pair '{pairKey}'");
                     found_pair_decimals = true;
                     break;
                 case "cost_decimals":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'cost_decimals' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'cost_decimals' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out cost_decimals))
-                        return new Error("ParsingError", $"Failed to parse 'cost_decimals' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'cost_decimals' for asset pair '{pairKey}'");
                     found_cost_decimals = true;
                     break;
                 case "lot_decimals":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'lot_decimals' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'lot_decimals' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out lot_decimals))
-                        return new Error("ParsingError", $"Failed to parse 'lot_decimals' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'lot_decimals' for asset pair '{pairKey}'");
                     found_lot_decimals = true;
                     break;
                 case "lot_multiplier":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'lot_multiplier' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'lot_multiplier' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out lot_multiplier))
-                        return new Error("ParsingError", $"Failed to parse 'lot_multiplier' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'lot_multiplier' for asset pair '{pairKey}'");
                     found_lot_multiplier = true;
                     break;
                 case "leverage_buy":
                     if (jsonReader.TokenType != JsonTokenType.StartArray)
-                        return new Error("UnexpectedTokenError", $"Expected array for 'leverage_buy' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected array for 'leverage_buy' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     var levBuyList = new List<int>();
                     while (true)
                     {
                         var r = jsonReader.ReadNext();
                         if (r.IsFailure)
-                            return new Error("ReadingTokenError", r.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r.Error);
                         if (jsonReader.TokenType == JsonTokenType.EndArray)
                             break;
                         if (jsonReader.TokenType != JsonTokenType.Number)
-                            return new Error("UnexpectedTokenError", $"Expected number in 'leverage_buy' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number in 'leverage_buy' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                         if (!jsonReader.TryGetInt32(out int lev))
-                            return new Error("ParsingError", $"Failed to parse number in 'leverage_buy' for asset pair '{pairKey}'");
+                            return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse number in 'leverage_buy' for asset pair '{pairKey}'");
                         levBuyList.Add(lev);
                     }
                     leverage_buy       = levBuyList.ToArray();
@@ -397,19 +390,19 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
                     break;
                 case "leverage_sell":
                     if (jsonReader.TokenType != JsonTokenType.StartArray)
-                        return new Error("UnexpectedTokenError", $"Expected array for 'leverage_sell' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected array for 'leverage_sell' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     var levSellList = new List<int>();
                     while (true)
                     {
                         var r = jsonReader.ReadNext();
                         if (r.IsFailure)
-                            return new Error("ReadingTokenError", r.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r.Error);
                         if (jsonReader.TokenType == JsonTokenType.EndArray)
                             break;
                         if (jsonReader.TokenType != JsonTokenType.Number)
-                            return new Error("UnexpectedTokenError", $"Expected number in 'leverage_sell' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number in 'leverage_sell' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                         if (!jsonReader.TryGetInt32(out int lev))
-                            return new Error("ParsingError", $"Failed to parse number in 'leverage_sell' for asset pair '{pairKey}'");
+                            return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse number in 'leverage_sell' for asset pair '{pairKey}'");
                         levSellList.Add(lev);
                     }
                     leverage_sell       = levSellList.ToArray();
@@ -417,136 +410,136 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
                     break;
                 case "fees":
                     if (jsonReader.TokenType != JsonTokenType.StartArray)
-                        return new Error("UnexpectedTokenError", $"Expected array for 'fees' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected array for 'fees' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     fees = new List<(decimal volume, decimal fee)>();
                     while (true)
                     {
                         var r = jsonReader.ReadNext();
                         if (r.IsFailure)
-                            return new Error("ReadingTokenError", r.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r.Error);
                         if (jsonReader.TokenType == JsonTokenType.EndArray)
                             break;
                         if (jsonReader.TokenType != JsonTokenType.StartArray)
-                            return new Error("UnexpectedTokenError", $"Expected sub-array for 'fees' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected sub-array for 'fees' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                         decimal feeVolume  = 0;
                         decimal feePercent = 0;
                         var     r1         = jsonReader.ReadNext();
                         if (r1.IsFailure)
-                            return new Error("ReadingTokenError", r1.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r1.Error);
                         if (jsonReader.TokenType != JsonTokenType.Number)
-                            return new Error("UnexpectedTokenError", $"Expected number for fee volume in 'fees' for asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for fee volume in 'fees' for asset pair '{pairKey}', found {jsonReader.TokenType}");
                         if (!jsonReader.TryGetDecimal(out feeVolume))
-                            return new Error("ParsingError", $"Failed to parse fee volume in 'fees' for asset pair '{pairKey}'");
+                            return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse fee volume in 'fees' for asset pair '{pairKey}'");
                         var r2 = jsonReader.ReadNext();
                         if (r2.IsFailure)
-                            return new Error("ReadingTokenError", r2.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r2.Error);
                         if (jsonReader.TokenType != JsonTokenType.Number)
-                            return new Error("UnexpectedTokenError", $"Expected number for fee percent in 'fees' for asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for fee percent in 'fees' for asset pair '{pairKey}', found {jsonReader.TokenType}");
                         if (!jsonReader.TryGetDecimal(out feePercent))
-                            return new Error("ParsingError", $"Failed to parse fee percent in 'fees' for asset pair '{pairKey}'");
+                            return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse fee percent in 'fees' for asset pair '{pairKey}'");
                         var r3 = jsonReader.ReadNext();
                         if (r3.IsFailure)
-                            return new Error("ReadingTokenError", r3.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r3.Error);
                         if (jsonReader.TokenType != JsonTokenType.EndArray)
-                            return new Error("UnexpectedTokenError", $"Expected end of sub-array for 'fees' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected end of sub-array for 'fees' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                         fees.Add((feeVolume, feePercent));
                     }
                     found_fees = true;
                     break;
                 case "fees_maker":
                     if (jsonReader.TokenType != JsonTokenType.StartArray)
-                        return new Error("UnexpectedTokenError", $"Expected array for 'fees_maker' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected array for 'fees_maker' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     fees_maker = new List<(decimal volume, decimal fee)>();
                     while (true)
                     {
                         var r = jsonReader.ReadNext();
                         if (r.IsFailure)
-                            return new Error("ReadingTokenError", r.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r.Error);
                         if (jsonReader.TokenType == JsonTokenType.EndArray)
                             break;
                         if (jsonReader.TokenType != JsonTokenType.StartArray)
-                            return new Error("UnexpectedTokenError", $"Expected sub-array for 'fees_maker' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected sub-array for 'fees_maker' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                         decimal feeVolume  = 0;
                         decimal feePercent = 0;
                         var     r1         = jsonReader.ReadNext();
                         if (r1.IsFailure)
-                            return new Error("ReadingTokenError", r1.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r1.Error);
                         if (jsonReader.TokenType != JsonTokenType.Number)
-                            return new Error("UnexpectedTokenError", $"Expected number for fee volume in 'fees_maker' for asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for fee volume in 'fees_maker' for asset pair '{pairKey}', found {jsonReader.TokenType}");
                         if (!jsonReader.TryGetDecimal(out feeVolume))
-                            return new Error("ParsingError", $"Failed to parse fee volume in 'fees_maker' for asset pair '{pairKey}'");
+                            return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse fee volume in 'fees_maker' for asset pair '{pairKey}'");
                         var r2 = jsonReader.ReadNext();
                         if (r2.IsFailure)
-                            return new Error("ReadingTokenError", r2.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r2.Error);
                         if (jsonReader.TokenType != JsonTokenType.Number)
-                            return new Error("UnexpectedTokenError", $"Expected number for fee percent in 'fees_maker' for asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for fee percent in 'fees_maker' for asset pair '{pairKey}', found {jsonReader.TokenType}");
                         if (!jsonReader.TryGetDecimal(out feePercent))
-                            return new Error("ParsingError", $"Failed to parse fee percent in 'fees_maker' for asset pair '{pairKey}'");
+                            return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse fee percent in 'fees_maker' for asset pair '{pairKey}'");
                         var r3 = jsonReader.ReadNext();
                         if (r3.IsFailure)
-                            return new Error("ReadingTokenError", r3.Error);
+                            return new Error(ErrorCodes.ReadingTokenErrorCode, r3.Error);
                         if (jsonReader.TokenType != JsonTokenType.EndArray)
-                            return new Error("UnexpectedTokenError", $"Expected end of sub-array for 'fees_maker' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected end of sub-array for 'fees_maker' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                         fees_maker.Add((feeVolume, feePercent));
                     }
                     found_fees_maker = true;
                     break;
                 case "fee_volume_currency":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'fee_volume_currency' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'fee_volume_currency' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     fee_volume_currency       = jsonReader.GetString();
                     found_fee_volume_currency = true;
                     break;
                 case "margin_call":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'margin_call' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'margin_call' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out margin_call))
-                        return new Error("ParsingError", $"Failed to parse 'margin_call' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'margin_call' for asset pair '{pairKey}'");
                     found_margin_call = true;
                     break;
                 case "margin_stop":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'margin_stop' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'margin_stop' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out margin_stop))
-                        return new Error("ParsingError", $"Failed to parse 'margin_stop' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'margin_stop' for asset pair '{pairKey}'");
                     found_margin_stop = true;
                     break;
                 case "ordermin":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'ordermin' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'ordermin' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     ordermin       = jsonReader.GetString();
                     found_ordermin = true;
                     break;
                 case "costmin":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'costmin' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'costmin' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     costmin       = jsonReader.GetString();
                     found_costmin = true;
                     break;
                 case "tick_size":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'tick_size' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'tick_size' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     tick_size       = jsonReader.GetString();
                     found_tick_size = true;
                     break;
                 case "status":
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'status' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'status' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     status       = jsonReader.GetString();
                     found_status = true;
                     break;
                 case "long_position_limit":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'long_position_limit' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'long_position_limit' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out long_position_limit))
-                        return new Error("ParsingError", $"Failed to parse 'long_position_limit' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'long_position_limit' for asset pair '{pairKey}'");
                     found_long_position_limit = true;
                     break;
                 case "short_position_limit":
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'short_position_limit' in asset pair '{pairKey}', found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'short_position_limit' in asset pair '{pairKey}', found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out short_position_limit))
-                        return new Error("ParsingError", $"Failed to parse 'short_position_limit' for asset pair '{pairKey}'");
+                        return new Error(ErrorCodes.ParsingErrorCode, $"Failed to parse 'short_position_limit' for asset pair '{pairKey}'");
                     found_short_position_limit = true;
                     break;
                 default:
@@ -558,53 +551,53 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
 
         // Validate that all required properties are found.
         if (!found_altname)
-            return new Error("MissingPropertyError", $"Missing property 'altname' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'altname' for asset pair '{pairKey}'");
         if (!found_wsname)
-            return new Error("MissingPropertyError", $"Missing property 'wsname' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'wsname' for asset pair '{pairKey}'");
         if (!found_aclass_base)
-            return new Error("MissingPropertyError", $"Missing property 'aclass_base' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'aclass_base' for asset pair '{pairKey}'");
         if (!found_base)
-            return new Error("MissingPropertyError", $"Missing property 'base' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'base' for asset pair '{pairKey}'");
         if (!found_aclass_quote)
-            return new Error("MissingPropertyError", $"Missing property 'aclass_quote' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'aclass_quote' for asset pair '{pairKey}'");
         if (!found_quote)
-            return new Error("MissingPropertyError", $"Missing property 'quote' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'quote' for asset pair '{pairKey}'");
         if (!found_lot)
-            return new Error("MissingPropertyError", $"Missing property 'lot' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'lot' for asset pair '{pairKey}'");
         if (!found_pair_decimals)
-            return new Error("MissingPropertyError", $"Missing property 'pair_decimals' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'pair_decimals' for asset pair '{pairKey}'");
         if (!found_cost_decimals)
-            return new Error("MissingPropertyError", $"Missing property 'cost_decimals' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'cost_decimals' for asset pair '{pairKey}'");
         if (!found_lot_decimals)
-            return new Error("MissingPropertyError", $"Missing property 'lot_decimals' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'lot_decimals' for asset pair '{pairKey}'");
         if (!found_lot_multiplier)
-            return new Error("MissingPropertyError", $"Missing property 'lot_multiplier' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'lot_multiplier' for asset pair '{pairKey}'");
         if (!found_leverage_buy)
-            return new Error("MissingPropertyError", $"Missing property 'leverage_buy' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'leverage_buy' for asset pair '{pairKey}'");
         if (!found_leverage_sell)
-            return new Error("MissingPropertyError", $"Missing property 'leverage_sell' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'leverage_sell' for asset pair '{pairKey}'");
         if (!found_fees)
-            return new Error("MissingPropertyError", $"Missing property 'fees' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'fees' for asset pair '{pairKey}'");
         if (!found_fees_maker)
-            return new Error("MissingPropertyError", $"Missing property 'fees_maker' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'fees_maker' for asset pair '{pairKey}'");
         if (!found_fee_volume_currency)
-            return new Error("MissingPropertyError", $"Missing property 'fee_volume_currency' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'fee_volume_currency' for asset pair '{pairKey}'");
         if (!found_margin_call)
-            return new Error("MissingPropertyError", $"Missing property 'margin_call' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'margin_call' for asset pair '{pairKey}'");
         if (!found_margin_stop)
-            return new Error("MissingPropertyError", $"Missing property 'margin_stop' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'margin_stop' for asset pair '{pairKey}'");
         if (!found_ordermin)
-            return new Error("MissingPropertyError", $"Missing property 'ordermin' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'ordermin' for asset pair '{pairKey}'");
         if (!found_costmin)
-            return new Error("MissingPropertyError", $"Missing property 'costmin' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'costmin' for asset pair '{pairKey}'");
         if (!found_tick_size)
-            return new Error("MissingPropertyError", $"Missing property 'tick_size' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'tick_size' for asset pair '{pairKey}'");
         if (!found_status)
-            return new Error("MissingPropertyError", $"Missing property 'status' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'status' for asset pair '{pairKey}'");
         if (!found_long_position_limit)
-            return new Error("MissingPropertyError", $"Missing property 'long_position_limit' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'long_position_limit' for asset pair '{pairKey}'");
         if (!found_short_position_limit)
-            return new Error("MissingPropertyError", $"Missing property 'short_position_limit' for asset pair '{pairKey}'");
+            return new Error(ErrorCodes.MissingPropertyErrorCode, $"Missing property 'short_position_limit' for asset pair '{pairKey}'");
 
         // Validate the "status" value.
         if (Array.IndexOf(AllowedStatuses, status) < 0)
@@ -648,21 +641,21 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
     {
         var nextResult = jsonReader.ReadNext();
         if (nextResult.IsFailure)
-            return new Error("StartReadingError", nextResult.Error);
+            return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
         if (jsonReader.TokenType != JsonTokenType.StartArray)
-            return new Error("UnexpectedTokenError", $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
         var errors = new List<string>();
         while (true)
         {
             var r = jsonReader.ReadNext();
             if (r.IsFailure)
-                return new Error("ReadingTokenError", r.Error);
+                return new Error(ErrorCodes.ReadingTokenErrorCode, r.Error);
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
             if (jsonReader.TokenType == JsonTokenType.String)
                 errors.Add(jsonReader.GetString());
             else
-                return new Error("UnexpectedTokenError", $"Expected string in error array but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string in error array but found {jsonReader.TokenType}");
         }
         return errors.ToArray();
     }

@@ -37,14 +37,14 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
             if (nextResult.IsFailure)
                 return new Error("StartReadingError", nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject but found {jsonReader.TokenType}");
 
             // Read the "error" property.
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("error"))
-                return new Error("UnknownPropertyError", $"Expected 'error' property but found '{jsonReader.GetString()}'");
+                return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'error' property but found '{jsonReader.GetString()}'");
             var errorSweep = ErrorSweep(ref jsonReader);
             if (errorSweep.IsFailure)
                 return new Error("ErrorSweep", errorSweep.Error);
@@ -53,14 +53,14 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
             // Read the "result" property.
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("result"))
-                return new Error("UnknownPropertyError", $"Expected 'result' property but found '{jsonReader.GetString()}'");
+                return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'result' property but found '{jsonReader.GetString()}'");
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
 
             string last       = null;
             var    tradesDict = new Dictionary<string, TradeEntry[]>();
@@ -70,27 +70,27 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
             {
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
                 if (jsonReader.TokenType == JsonTokenType.EndObject)
                     break;
                 if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                    return new Error("UnexpectedTokenError", $"Expected property name in 'result' but found {jsonReader.TokenType}");
+                    return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected property name in 'result' but found {jsonReader.TokenType}");
                 string propName = jsonReader.GetString();
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
                 if (propName == "last")
                 {
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for 'last' but found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for 'last' but found {jsonReader.TokenType}");
                     last = jsonReader.GetString();
                 }
                 else
                 {
                     // Treat any other property as a trade array.
                     if (jsonReader.TokenType != JsonTokenType.StartArray)
-                        return new Error("UnexpectedTokenError", $"Expected StartArray for trades under '{propName}' but found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for trades under '{propName}' but found {jsonReader.TokenType}");
                     var tradeArrayResult = ReadTradeEntryArray(ref jsonReader, propName);
                     if (tradeArrayResult.IsFailure)
                         return tradeArrayResult.Error;
@@ -100,12 +100,12 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
 
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.EndObject)
-                return new Error("UnexpectedTokenError", $"Expected EndObject for root but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected EndObject for root but found {jsonReader.TokenType}");
 
             if (last == null)
-                return new Error("MissingPropertyError", "Missing 'last' property in 'result'");
+                return new Error(ErrorCodes.MissingPropertyErrorCode, "Missing 'last' property in 'result'");
 
             return new RecentTradesResponse { Last = last, Trades = tradesDict };
         }
@@ -129,11 +129,11 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
         {
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
             if (jsonReader.TokenType != JsonTokenType.StartArray)
-                return new Error("UnexpectedTokenError", $"Expected StartArray for trade entry in '{pairName}' but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for trade entry in '{pairName}' but found {jsonReader.TokenType}");
             var tradeResult = ReadTradeEntry(ref jsonReader, pairName);
             if (tradeResult.IsFailure)
                 return tradeResult.Error;
@@ -158,7 +158,7 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
         {
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             switch (i)
             {
                 case 0:
@@ -168,7 +168,7 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
                     else if (jsonReader.TokenType == JsonTokenType.Number)
                         price = jsonReader.GetDecimal().ToString();
                     else
-                        return new Error("UnexpectedTokenError", $"Expected string or number for price in '{pairName}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string or number for price in '{pairName}', element {i}, found {jsonReader.TokenType}");
                     break;
                 case 1:
                     // Volume: allow string or number.
@@ -177,32 +177,32 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
                     else if (jsonReader.TokenType == JsonTokenType.Number)
                         volume = jsonReader.GetDecimal().ToString();
                     else
-                        return new Error("UnexpectedTokenError", $"Expected string or number for volume in '{pairName}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string or number for volume in '{pairName}', element {i}, found {jsonReader.TokenType}");
                     break;
                 case 2:
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for time in '{pairName}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for time in '{pairName}', element {i}, found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetDouble(out time))
                         return new Error("ParsingError", $"Failed to parse time for trade entry in '{pairName}'");
                     break;
                 case 3:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for side in '{pairName}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for side in '{pairName}', element {i}, found {jsonReader.TokenType}");
                     side = jsonReader.GetString();
                     break;
                 case 4:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for order type in '{pairName}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for order type in '{pairName}', element {i}, found {jsonReader.TokenType}");
                     orderType = jsonReader.GetString();
                     break;
                 case 5:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for miscellaneous in '{pairName}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for miscellaneous in '{pairName}', element {i}, found {jsonReader.TokenType}");
                     misc = jsonReader.GetString();
                     break;
                 case 6:
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for trade id in '{pairName}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for trade id in '{pairName}', element {i}, found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt64(out tradeId))
                         return new Error("ParsingError", $"Failed to parse trade id for trade entry in '{pairName}'");
                     break;
@@ -211,9 +211,9 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
         // Expect EndArray.
         var finalResult = jsonReader.ReadNext();
         if (finalResult.IsFailure)
-            return new Error("ReadingTokenError", finalResult.Error);
+            return new Error(ErrorCodes.StartReadingErrorCode, finalResult.Error);
         if (jsonReader.TokenType != JsonTokenType.EndArray)
-            return new Error("UnexpectedTokenError", $"Expected EndArray for trade entry in '{pairName}'");
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected EndArray for trade entry in '{pairName}'");
         return new TradeEntry
         {
             Price     = price,
@@ -233,17 +233,17 @@ public class RecentTradesJsonConverter : JsonConverter<Result<RecentTradesRespon
         if (nextResult.IsFailure)
             return new Error("StartReadingError", nextResult.Error);
         if (jsonReader.TokenType != JsonTokenType.StartArray)
-            return new Error("UnexpectedTokenError", $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
         var errors = new List<string>();
         while (true)
         {
             var r = jsonReader.ReadNext();
             if (r.IsFailure)
-                return new Error("ReadingTokenError", r.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, r.Error);
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
             if (jsonReader.TokenType != JsonTokenType.String)
-                return new Error("UnexpectedTokenError", $"Expected string in error array but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string in error array but found {jsonReader.TokenType}");
             errors.Add(jsonReader.GetString());
         }
         return errors.ToArray();

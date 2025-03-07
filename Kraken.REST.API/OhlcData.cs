@@ -81,14 +81,14 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
             if (nextResult.IsFailure)
                 return new Error("StartReadingError", nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject but found {jsonReader.TokenType}");
 
             // Read the "error" property.
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("error"))
-                return new Error("UnknownPropertyError", $"Expected 'error' property but found '{jsonReader.GetString()}'");
+                return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'error' property but found '{jsonReader.GetString()}'");
             var errorSweepResult = ErrorSweep(ref jsonReader);
             if (errorSweepResult.IsFailure)
                 return new Error("ErrorSweep", errorSweepResult.Error);
@@ -97,14 +97,14 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
             // Read the "result" property.
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.PropertyName || !jsonReader.ValueTextEquals("result"))
-                return new Error("UnknownPropertyError", $"Expected 'result' property but found '{jsonReader.GetString()}'");
+                return new Error(ErrorCodes.UnknownPropertyErrorCode, $"Expected 'result' property but found '{jsonReader.GetString()}'");
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.StartObject)
-                return new Error("UnexpectedTokenError", $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
 
             int last    = 0;
             var tickers = new Dictionary<string, TickData[]>();
@@ -114,21 +114,21 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
             {
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
                 if (jsonReader.TokenType == JsonTokenType.EndObject)
                     break;
                 if (jsonReader.TokenType != JsonTokenType.PropertyName)
-                    return new Error("UnexpectedTokenError", $"Expected property name in 'result' but found {jsonReader.TokenType}");
+                    return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected property name in 'result' but found {jsonReader.TokenType}");
 
                 string propName = jsonReader.GetString();
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
-                    return new Error("ReadingTokenError", nextResult.Error);
+                    return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
                 if (propName == "last")
                 {
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for 'last' but found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for 'last' but found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out last))
                         return new Error("ParsingError", "Failed to parse 'last' as integer");
                 }
@@ -136,7 +136,7 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
                 {
                     // Assume any other property is a ticker (array of tick data arrays).
                     if (jsonReader.TokenType != JsonTokenType.StartArray)
-                        return new Error("UnexpectedTokenError", $"Expected StartArray for ticker '{propName}' but found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for ticker '{propName}' but found {jsonReader.TokenType}");
                     var ticksResult = ReadTickDataArray(ref jsonReader, propName);
                     if (ticksResult.IsFailure)
                         return ticksResult.Error;
@@ -147,9 +147,9 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
             // Read end of the root object.
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType != JsonTokenType.EndObject)
-                return new Error("UnexpectedTokenError", $"Expected EndObject for root but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected EndObject for root but found {jsonReader.TokenType}");
 
             return new OhlcResponse { Last = last, Tickers = tickers };
         }
@@ -183,11 +183,11 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
         {
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
             if (jsonReader.TokenType != JsonTokenType.StartArray)
-                return new Error("UnexpectedTokenError", $"Expected StartArray for tick data in ticker '{tickerKey}', but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for tick data in ticker '{tickerKey}', but found {jsonReader.TokenType}");
             var tickResult = ReadTickData(ref jsonReader, tickerKey);
             if (tickResult.IsFailure)
                 return tickResult.Error;
@@ -218,48 +218,48 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
         {
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
-                return new Error("ReadingTokenError", nextResult.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
             switch (i)
             {
                 case 0:
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for time in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for time in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out time))
                         return new Error("ParsingError", $"Failed to parse time for ticker '{tickerKey}'");
                     break;
                 case 1:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for open in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for open in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     open = jsonReader.GetString();
                     break;
                 case 2:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for high in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for high in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     high = jsonReader.GetString();
                     break;
                 case 3:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for low in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for low in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     low = jsonReader.GetString();
                     break;
                 case 4:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for close in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for close in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     close = jsonReader.GetString();
                     break;
                 case 5:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for vwap in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for vwap in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     vwap = jsonReader.GetString();
                     break;
                 case 6:
                     if (jsonReader.TokenType != JsonTokenType.String)
-                        return new Error("UnexpectedTokenError", $"Expected string for volume in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string for volume in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     volume = jsonReader.GetString();
                     break;
                 case 7:
                     if (jsonReader.TokenType != JsonTokenType.Number)
-                        return new Error("UnexpectedTokenError", $"Expected number for count in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
+                        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected number for count in ticker '{tickerKey}', element {i}, found {jsonReader.TokenType}");
                     if (!jsonReader.TryGetInt32(out count))
                         return new Error("ParsingError", $"Failed to parse count for ticker '{tickerKey}'");
                     break;
@@ -268,9 +268,9 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
         // Expect EndArray.
         var finalResult = jsonReader.ReadNext();
         if (finalResult.IsFailure)
-            return new Error("ReadingTokenError", finalResult.Error);
+            return new Error(ErrorCodes.StartReadingErrorCode, finalResult.Error);
         if (jsonReader.TokenType != JsonTokenType.EndArray)
-            return new Error("UnexpectedTokenError", $"Expected EndArray for tick data in ticker '{tickerKey}'");
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected EndArray for tick data in ticker '{tickerKey}'");
         return new TickData { Time = time, Open = open, High = high, Low = low, Close = close, Vwap = vwap, Volume = volume, Count = count };
     }
 
@@ -285,17 +285,17 @@ public class OhlcJsonConverter : JsonConverter<Result<OhlcResponse>>
         if (nextResult.IsFailure)
             return new Error("StartReadingError", nextResult.Error);
         if (jsonReader.TokenType != JsonTokenType.StartArray)
-            return new Error("UnexpectedTokenError", $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
+            return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartArray for 'error' but found {jsonReader.TokenType}");
         var errors = new List<string>();
         while (true)
         {
             var r = jsonReader.ReadNext();
             if (r.IsFailure)
-                return new Error("ReadingTokenError", r.Error);
+                return new Error(ErrorCodes.StartReadingErrorCode, r.Error);
             if (jsonReader.TokenType == JsonTokenType.EndArray)
                 break;
             if (jsonReader.TokenType != JsonTokenType.String)
-                return new Error("UnexpectedTokenError", $"Expected string in error array but found {jsonReader.TokenType}");
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected string in error array but found {jsonReader.TokenType}");
             errors.Add(jsonReader.GetString());
         }
         return errors.ToArray();
