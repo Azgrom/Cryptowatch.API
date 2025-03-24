@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API.Client;
+namespace Kraken.REST.API.Client.Types;
 
 /// <summary>
 /// Record that holds the complete mapping of asset identifiers to AssetInfo.
