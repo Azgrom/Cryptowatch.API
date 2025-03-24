@@ -67,19 +67,21 @@ public class AssetInfoJsonConverterTests
     public void Deserialize_InvalidStatus_ReturnsFailure()
     {
         // Provide an invalid status value.
-        string json = @"{
-            ""error"": [],
-            ""result"": {
-                ""ZEUR"": {
-                    ""aclass"": ""currency"",
-                    ""altname"": ""EUR"",
-                    ""decimals"": 4,
-                    ""display_decimals"": 2,
-                    ""collateral_value"": 1,
-                    ""status"": ""not_enabled""
-                }
-            }
-        }";
+        var json = """
+                   {
+                               "error": [],
+                               "result": {
+                                   "ZEUR": {
+                                       "aclass": "currency",
+                                       "altname": "EUR",
+                                       "decimals": 4,
+                                       "display_decimals": 2,
+                                       "collateral_value": 1,
+                                       "status": "not_enabled"
+                                   }
+                               }
+                           }
+                   """;
 
         var result = JsonSerializer.Deserialize<Result<AssetInfoResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to invalid status value");
@@ -89,19 +91,7 @@ public class AssetInfoJsonConverterTests
     [Fact]
     public void Deserialize_ErrorPropertyNotArray_ReturnsFailure()
     {
-        string json = @"{
-            ""error"": ""Some error"",
-            ""result"": {
-                ""XXBT"": {
-                    ""aclass"": ""currency"",
-                    ""altname"": ""XBT"",
-                    ""decimals"": 10,
-                    ""display_decimals"": 5,
-                    ""collateral_value"": 1,
-                    ""status"": ""enabled""
-                }
-            }
-        }";
+        var json = RestResponses.InvalidErrorPropertyOnAssetInfoResponse;
 
         var result = JsonSerializer.Deserialize<Result<AssetInfoResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure because 'error' property is not an array");
@@ -111,7 +101,7 @@ public class AssetInfoJsonConverterTests
     [Fact]
     public void Deserialize_RootNotObject_ReturnsFailure()
     {
-        string json   = @"[]";
+        string json   = RestResponses.EmptyArrayResponse;
         var    result = JsonSerializer.Deserialize<Result<AssetInfoResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure because root is not an object");
         Assert.Contains("Expected StartObject", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
@@ -121,9 +111,7 @@ public class AssetInfoJsonConverterTests
     public void Deserialize_MissingResultProperty_ReturnsFailure()
     {
         // JSON with no "result" property.
-        string json = @"{
-            ""error"": []
-        }";
+        string json = RestResponses.MissingObjectResponse;
 
         var result = JsonSerializer.Deserialize<Result<AssetInfoResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to missing 'result' property");

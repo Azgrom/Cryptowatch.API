@@ -1506,4 +1506,42 @@
   }
 }</value>
   </data>
+  <data name="InvalidErrorPropertyOnAssetInfoResponse" xml:space="preserve">
+    <value>{
+  "error": "Some error",
+  "result": {
+    "XXBT": {
+      "aclass": "currency",
+      "altname": "XBT",
+      "decimals": 10,
+      "display_decimals": 5,
+      "collateral_value": 1,
+      "status": "enabled"
+    }
+  }
+}</value>
+  </data>
+  <data name="EmptyArrayResponse" xml:space="preserve">
+    <value>[]</value>
+  </data>
+  <data name="MissingObjectResponse" xml:space="preserve">
+    <value>{
+  "error": []
+}</value>
+  </data>
+  <data name="InvalidStatusAssetInfoObject" xml:space="preserve">
+    <value>{
+  "error": [],
+  "result": {
+    "ZEUR": {
+      "aclass": "currency",
+      "altname": "EUR",
+      "decimals": 4,
+      "display_decimals": 2,
+      "collateral_value": 1,
+      "status": "not_enabled"
+    }
+  }
+}</value>
+  </data>
 </root>

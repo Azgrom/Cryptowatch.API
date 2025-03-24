@@ -104,5 +104,29 @@ namespace JsonConverterTests {
                 return ResourceManager.GetString("RecentSpreadsExample", resourceCulture);
             }
         }
+        
+        internal static string InvalidErrorPropertyOnAssetInfoResponse {
+            get {
+                return ResourceManager.GetString("InvalidErrorPropertyOnAssetInfoResponse", resourceCulture);
+            }
+        }
+        
+        internal static string EmptyArrayResponse {
+            get {
+                return ResourceManager.GetString("EmptyArrayResponse", resourceCulture);
+            }
+        }
+        
+        internal static string MissingObjectResponse {
+            get {
+                return ResourceManager.GetString("MissingObjectResponse", resourceCulture);
+            }
+        }
+        
+        internal static string InvalidStatusAssetInfoObject {
+            get {
+                return ResourceManager.GetString("InvalidStatusAssetInfoObject", resourceCulture);
+            }
+        }
     }
 }
