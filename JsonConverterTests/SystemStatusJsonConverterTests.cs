@@ -1,6 +1,6 @@
 using System.Text.Json;
 using CoreAbstractions;
-using Kraken.REST.API;
+using Kraken.REST.API.Client;
 
 namespace JsonConverterTests;
 

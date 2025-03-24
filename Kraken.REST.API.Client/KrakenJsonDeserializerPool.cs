@@ -2,7 +2,7 @@ using System.Text.Json;
 using CoreAbstractions;
 using Microsoft.Extensions.Logging;
 
-namespace Kraken.REST.API;
+namespace Kraken.REST.API.Client;
 
 public class KrakenJsonDeserializerPool
 {

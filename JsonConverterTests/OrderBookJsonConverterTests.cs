@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using Kraken.REST.API;
+using Kraken.REST.API.Client;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 

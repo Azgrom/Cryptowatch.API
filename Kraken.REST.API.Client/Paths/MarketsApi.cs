@@ -1,8 +1,8 @@
 // using System.Net.Http.Json;
 // using System.Text;
-// using Kraken.REST.API.Types;
+// using Kraken.REST.API.Client.Types;
 //
-// namespace Kraken.REST.API.Paths;
+// namespace Kraken.REST.API.Client.Paths;
 //
 // public readonly struct MarketsApi
 // {

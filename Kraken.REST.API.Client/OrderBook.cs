@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API;
+namespace Kraken.REST.API.Client;
 
 public sealed record OrderBook
 {

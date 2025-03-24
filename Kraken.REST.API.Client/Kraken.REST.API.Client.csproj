@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>12</LangVersion>
         <Version>0.2.6</Version>
-        <PackageId>Kraken.REST.API</PackageId>
+        <PackageId>Kraken.REST.API.Client</PackageId>
         <Title>A cryptowatch.ch API client</Title>
         <Authors>CryptoWatch.REST.API</Authors>
         <Copyright>MIT</Copyright>

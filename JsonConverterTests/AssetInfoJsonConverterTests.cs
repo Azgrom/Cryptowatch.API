@@ -1,6 +1,6 @@
 using System.Text.Json;
 using CoreAbstractions;
-using Kraken.REST.API;
+using Kraken.REST.API.Client;
 
 namespace JsonConverterTests;
 
@@ -20,37 +20,7 @@ public class AssetInfoJsonConverterTests
     [Fact]
     public void Deserialize_ValidJson_ReturnsAssetInfoResponse()
     {
-        string json = @"{
-            ""error"": [],
-            ""result"": {
-                ""XXBT"": {
-                    ""aclass"": ""currency"",
-                    ""altname"": ""XBT"",
-                    ""decimals"": 10,
-                    ""display_decimals"": 5,
-                    ""collateral_value"": 1,
-                    ""status"": ""enabled""
-                },
-                ""ZEUR"": {
-                    ""aclass"": ""currency"",
-                    ""altname"": ""EUR"",
-                    ""decimals"": 4,
-                    ""display_decimals"": 2,
-                    ""collateral_value"": 1,
-                    ""status"": ""enabled""
-                },
-                ""ZUSD"": {
-                    ""aclass"": ""currency"",
-                    ""altname"": ""USD"",
-                    ""decimals"": 4,
-                    ""display_decimals"": 2,
-                    ""collateral_value"": 1,
-                    ""status"": ""enabled""
-                }
-            }
-        }";
-
-        var result = JsonSerializer.Deserialize<Result<AssetInfoResponse>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<AssetInfoResponse>>(RestResponses.AssetInfoExample, _options);
         Assert.True(result.IsSuccess, "Expected successful deserialization");
         Assert.NotNull(result.Value);
 

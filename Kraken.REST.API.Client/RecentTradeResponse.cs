@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API;
+namespace Kraken.REST.API.Client;
 
 // Represents a single trade entry.
 public record TradeEntry

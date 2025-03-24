@@ -1,6 +1,6 @@
-// using Kraken.REST.API.Paths;
+// using Kraken.REST.API.Client.Paths;
 //
-// namespace Kraken.REST.API;
+// namespace Kraken.REST.API.Client;
 //
 // public class CryptoWatchRestApi
 // {

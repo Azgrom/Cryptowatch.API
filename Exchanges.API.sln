@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API", "Kraken.REST.API\Kraken.REST.API.csproj", "{57D71442-F250-42E9-AF6B-0BFE5384D474}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API.Client", "Kraken.REST.API.Client\Kraken.REST.API.Client.csproj", "{57D71442-F250-42E9-AF6B-0BFE5384D474}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreAbstractions", "CoreAbstractions\CoreAbstractions.csproj", "{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}"
 EndProject

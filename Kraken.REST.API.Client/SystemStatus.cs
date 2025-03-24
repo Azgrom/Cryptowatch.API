@@ -2,30 +2,31 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API;
+namespace Kraken.REST.API.Client;
 
-public sealed record ServerTime
+// Define the type that will hold the system status.
+public sealed record SystemStatus
 {
-    public ServerTime(long unixtime, string rfc1123)
+    public SystemStatus(string status, string timestamp)
     {
-        Unixtime = unixtime;
-        Rfc1123  = rfc1123;
+        Status = status;
+        Timestamp = timestamp;
     }
-    public long   Unixtime { get; init; }
-    public string Rfc1123  { get; init; }
+    public string Status { get; init; }
+    public string Timestamp { get; init; }
 }
 
-// Custom converter for deserializing the JSON into a Result<TimeInfo>
-public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTime>>
+// Custom converter for deserializing the JSON into a Result<SystemStatus>
+public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
 {
-    public override Result<ServerTime> Read(
-        ref Utf8JsonReader    jsonReader, 
-        Type                  typeToConvert, 
-        JsonSerializerOptions options)
+    // Allowed status values per schema.
+    private static readonly string[] AllowedStatuses = new[] { "online", "maintenance", "cancel_only", "post_only" };
+
+    public override Result<SystemStatus> Read(ref Utf8JsonReader jsonReader, Type typeToConvert, JsonSerializerOptions options)
     {
         try
         {
-            // Begin reading the outer object.
+            // Begin reading the root object.
             if (jsonReader.TokenType is JsonTokenType.None)
             {
                 if (jsonReader.ReadNext().IsFailure)
@@ -35,15 +36,13 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
             if (jsonReader.TokenType != JsonTokenType.StartObject)
                 return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject but found {jsonReader.TokenType}");
 
-            // Read first property – should be "error".
+            // Read the first property, expected to be "error"
             var nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
                 return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
             string[] errors = Array.Empty<string>();
-
-            if (jsonReader.TokenType == JsonTokenType.PropertyName &&
-                jsonReader.ValueTextEquals("error"))
+            if (jsonReader.TokenType == JsonTokenType.PropertyName && jsonReader.ValueTextEquals("error"))
             {
                 var errorSweepResult = ErrorSweep(ref jsonReader);
                 if (errorSweepResult.IsFailure)
@@ -56,7 +55,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                     $"Expected 'error' property but found '{jsonReader.GetString()}'");
             }
 
-            // Read next property – should be "result".
+            // Read the next property, expected to be "result".
             nextResult = jsonReader.ReadNext();
             if (nextResult.IsFailure)
                 return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
@@ -77,89 +76,75 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                 return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
 
-            // Prepare to read properties from the result object.
-            long   unixtime      = 0;
-            string rfc1123       = string.Empty;
-            bool   foundUnixtime = false;
-            bool   foundRfc1123  = false;
+            // Initialize variables for the expected properties.
+            string status = string.Empty;
+            string timestamp = string.Empty;
+            bool foundStatus = false;
+            bool foundTimestamp = false;
 
-            // Loop through the result properties.
+            // Read properties inside the "result" object.
             while (true)
             {
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
                     return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
-                // End of the "result" object.
+                // End of "result" object.
                 if (jsonReader.TokenType == JsonTokenType.EndObject)
                     break;
 
                 if (jsonReader.TokenType != JsonTokenType.PropertyName)
                     return new Error(ErrorCodes.UnexpectedTokenErrorCode,
-                        $"Expected a property name but found {jsonReader.TokenType}");
+                        $"Expected property name but found {jsonReader.TokenType}");
 
-                string propName = jsonReader.GetString();
+                string propertyName = jsonReader.GetString();
                 nextResult = jsonReader.ReadNext();
                 if (nextResult.IsFailure)
                     return new Error(ErrorCodes.StartReadingErrorCode, nextResult.Error);
 
-                if (propName == "unixtime")
+                if (propertyName == "status")
                 {
-                    if (jsonReader.TokenType == JsonTokenType.Number)
-                    {
-                        if (jsonReader.TryGetInt64(out long value))
-                        {
-                            unixtime      = value;
-                            foundUnixtime = true;
-                        }
-                        else
-                        {
-                            return new Error("ParsingError", "Failed to parse unixtime as Int64");
-                        }
-                    }
-                    else if (jsonReader.TokenType == JsonTokenType.String)
-                    {
-                        // Allow string representation of the number.
-                        var str = jsonReader.GetString();
-                        if (long.TryParse((string?)str, out long value))
-                        {
-                            unixtime      = value;
-                            foundUnixtime = true;
-                        }
-                        else
-                        {
-                            return new Error("ParsingError", "Failed to parse unixtime string to Int64");
-                        }
-                    }
-                    else
-                    {
+                    if (jsonReader.TokenType != JsonTokenType.String)
                         return new Error(ErrorCodes.UnexpectedTokenErrorCode,
-                            $"Expected Number or String for unixtime but found {jsonReader.TokenType}");
-                    }
+                            $"Expected string for 'status' but found {jsonReader.TokenType}");
+                    status = jsonReader.GetString();
+                    foundStatus = true;
                 }
-                else if (propName == "rfc1123")
+                else if (propertyName == "timestamp")
                 {
-                    if (jsonReader.TokenType == JsonTokenType.String)
-                    {
-                        rfc1123      = jsonReader.GetString();
-                        foundRfc1123 = true;
-                    }
-                    else
-                    {
+                    if (jsonReader.TokenType != JsonTokenType.String)
                         return new Error(ErrorCodes.UnexpectedTokenErrorCode,
-                            $"Expected String for rfc1123 but found {jsonReader.TokenType}");
-                    }
+                            $"Expected string for 'timestamp' but found {jsonReader.TokenType}");
+                    timestamp = jsonReader.GetString();
+                    foundTimestamp = true;
                 }
                 else
                 {
-                    // For any unknown property, skip its value.
+                    // Skip any unknown property.
                     jsonReader.Skip();
                 }
             }
 
-            if (!foundUnixtime || !foundRfc1123)
-                return new Error(ErrorCodes.MissingPropertyErrorCode,
-                    "Result object must contain both 'unixtime' and 'rfc1123'");
+            // Ensure both properties were found.
+            if (!foundStatus)
+            {
+                while (jsonReader.ReadNext().IsSuccess&& jsonReader.CurrentDepth is not 0)
+                {
+                }
+
+                return new Error(ErrorCodes.MissingPropertyErrorCode, "Missing property 'status' in result");
+            }
+
+            if (!foundTimestamp)
+                return new Error(ErrorCodes.MissingPropertyErrorCode, "Missing property 'timestamp' in result");
+
+            // Validate the "status" value.
+            if (Array.IndexOf(AllowedStatuses, status) < 0)
+                return new Error("InvalidValueError", $"Invalid status value: {status}");
+
+            // Validate that the timestamp string can be parsed (RFC3339 is a subset of ISO8601).
+            if (!DateTime.TryParse(timestamp, out _))
+                return new Error("InvalidValueError", $"Invalid timestamp format: {timestamp}");
 
             // Read the end of the root object.
             nextResult = jsonReader.ReadNext();
@@ -169,8 +154,9 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                 return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected EndObject for root but found {jsonReader.TokenType}");
 
-            var timeInfo = new ServerTime(unixtime, rfc1123);
-            return timeInfo; // Uses implicit conversion operator for a success.
+            // Return the successfully parsed SystemStatus.
+            var systemStatus = new SystemStatus(status, timestamp);
+            return systemStatus; // Uses implicit conversion operator for a success.
         }
         catch (Exception ex)
         {
@@ -179,13 +165,9 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
         }
     }
 
-    public override void Write(
-        Utf8JsonWriter        writer, 
-        Result<ServerTime>    value, 
-        JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Result<SystemStatus> value, JsonSerializerOptions options)
     {
-        // For demonstration we provide a basic implementation.
-        // Serialization should also use error propagation and not throw.
+        // Basic serialization implementation.
         writer.WriteStartObject();
         writer.WritePropertyName("error");
         writer.WriteStartArray();
@@ -200,8 +182,8 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
         writer.WriteStartObject();
         if (value.IsSuccess)
         {
-            writer.WriteNumber("unixtime", value.Value.Unixtime);
-            writer.WriteString("rfc1123", value.Value.Rfc1123);
+            writer.WriteString("status", value.Value.Status);
+            writer.WriteString("timestamp", value.Value.Timestamp);
         }
         writer.WriteEndObject();
         writer.WriteEndObject();
@@ -234,8 +216,9 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                 errors.Add(jsonReader.GetString());
             else
                 return new Error(ErrorCodes.UnexpectedTokenErrorCode,
-                    $"Expected String in error array but found {jsonReader.TokenType}");
+                    $"Expected string in error array but found {jsonReader.TokenType}");
         }
         return errors.ToArray();
     }
 }
+

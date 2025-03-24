@@ -4,7 +4,7 @@ using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
 
-namespace Kraken.REST.API;
+namespace Kraken.REST.API.Client;
 
 public static class CryptoWatchApiServiceRegister
 {
