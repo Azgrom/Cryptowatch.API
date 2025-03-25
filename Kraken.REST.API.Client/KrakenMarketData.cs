@@ -1,154 +1,54 @@
-using System.Web;
+// ReSharper disable ConvertToPrimaryConstructor
 
 namespace Kraken.REST.API.Client;
 
 public class KrakenMarketData
 {
     private readonly HttpClient _httpClient;
-    private const    string     BaseUrl = "https://api.kraken.com/0/public/";
 
-    public KrakenMarketData(HttpClient httpClient)
-    {
-        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-    }
+    // Paths defined as constants
+    private const string ServerTimePath   = "/0/public/Time";
+    private const string SystemStatusPath = "/0/public/SystemStatus";
+    private const string AssetsPath       = "/0/public/Assets";
+    private const string AssetPairsPath   = "/0/public/AssetPairs";
 
-    // GET: Server Time
-    public Task<HttpResponseMessage> GetServerTimeAsync()
-    {
-        return _httpClient.GetAsync($"{BaseUrl}Time");
-    }
+    public KrakenMarketData(HttpClient httpClient) => _httpClient = httpClient;
 
-    // GET: System Status
-    public Task<HttpResponseMessage> GetSystemStatusAsync()
-    {
-        return _httpClient.GetAsync($"{BaseUrl}SystemStatus");
-    }
+    public Task<HttpResponseMessage> GetServerTimeAsync() => _httpClient.GetAsync(ServerTimePath);
 
-    // GET: Asset Info (All combinations of optional parameters)
-    public Task<HttpResponseMessage> GetAssetsAsync()
-    {
-        return _httpClient.GetAsync($"{BaseUrl}Assets");
-    }
+    public Task<HttpResponseMessage> GetSystemStatusAsync() => _httpClient.GetAsync(SystemStatusPath);
 
-    public Task<HttpResponseMessage> GetAssetsAsync(string asset)
-    {
-        var builder = new UriBuilder($"{BaseUrl}Assets");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
+    public Task<HttpResponseMessage> GetAssetsAsync() => _httpClient.GetAsync(AssetsPath);
 
-        query["asset"] = asset;
-        builder.Query  = query.ToString();
+    public Task<HttpResponseMessage> GetAssetsAsync(string asset) =>
+        _httpClient.GetAsync($"{AssetsPath}?asset={asset}");
 
-        return _httpClient.GetAsync(builder.Uri);
-    }
+    public Task<HttpResponseMessage> GetAssetsByClassAsync(string aclass) =>
+        _httpClient.GetAsync($"{AssetsPath}?aclass={aclass}");
 
-    public Task<HttpResponseMessage> GetAssetsByClassAsync(string aclass)
-    {
-        var builder = new UriBuilder($"{BaseUrl}Assets");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
+    public Task<HttpResponseMessage> GetAssetsAsync(string asset, string aclass) =>
+        _httpClient.GetAsync($"{AssetsPath}?asset={asset}&aclass={aclass}");
 
-        query["aclass"] = aclass;
-        builder.Query   = query.ToString();
+    public Task<HttpResponseMessage> GetTradableAssetPairsAsync() => _httpClient.GetAsync(AssetPairsPath);
 
-        return _httpClient.GetAsync(builder.Uri);
-    }
+    public Task<HttpResponseMessage> GetTradableAssetPairsAsync(string pair) =>
+        _httpClient.GetAsync($"{AssetPairsPath}?pair={pair}");
 
-    public Task<HttpResponseMessage> GetAssetsAsync(string asset, string aclass)
-    {
-        var builder = new UriBuilder($"{BaseUrl}Assets");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
+    public Task<HttpResponseMessage> GetTradableAssetPairsByInfoAsync(string info) =>
+        _httpClient.GetAsync($"{AssetPairsPath}?info={info}");
 
-        query["asset"]  = asset;
-        query["aclass"] = aclass;
-        builder.Query   = query.ToString();
+    public Task<HttpResponseMessage> GetTradableAssetPairsByCountryAsync(string countryCode) =>
+        _httpClient.GetAsync($"{AssetPairsPath}?country={countryCode}");
 
-        return _httpClient.GetAsync(builder.Uri);
-    }
+    public Task<HttpResponseMessage> GetTradableAssetPairsAsync(string pair, string info) =>
+        _httpClient.GetAsync($"{AssetPairsPath}?pair={pair}&info={info}");
 
-    // GET: Tradable Asset Pairs (all combinations of query parameters pair, info, country_code)
-    public Task<HttpResponseMessage> GetTradableAssetPairsAsync()
-    {
-        return _httpClient.GetAsync($"{BaseUrl}AssetPairs");
-    }
+    public Task<HttpResponseMessage> GetTradableAssetPairsWithCountryAsync(string pair, string countryCode) =>
+        _httpClient.GetAsync($"{AssetPairsPath}?pair={pair}&country={countryCode}");
 
-    public Task<HttpResponseMessage> GetTradableAssetPairsAsync(string pair)
-    {
-        var builder = new UriBuilder($"{BaseUrl}AssetPairs");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
+    public Task<HttpResponseMessage> GetTradableAssetPairsByInfoAndCountryAsync(string info, string countryCode) =>
+        _httpClient.GetAsync($"{AssetPairsPath}?info={info}&country={countryCode}");
 
-        query["pair"] = pair;
-        builder.Query = query.ToString();
-
-        return _httpClient.GetAsync(builder.Uri);
-    }
-
-    public Task<HttpResponseMessage> GetTradableAssetPairsByInfoAsync(string info)
-    {
-        var builder = new UriBuilder($"{BaseUrl}AssetPairs");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
-
-        query["info"] = info; // Possible values: info, leverage, fees, margin
-        builder.Query = query.ToString();
-
-        return _httpClient.GetAsync(builder.Uri);
-    }
-
-    public Task<HttpResponseMessage> GetTradableAssetPairsByCountryAsync(string countryCode)
-    {
-        var builder = new UriBuilder($"{BaseUrl}AssetPairs");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
-
-        query["country_code"] = countryCode;
-        builder.Query         = query.ToString();
-
-        return _httpClient.GetAsync(builder.Uri);
-    }
-
-    public Task<HttpResponseMessage> GetTradableAssetPairsAsync(string pair, string info)
-    {
-        var builder = new UriBuilder($"{BaseUrl}AssetPairs");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
-
-        query["pair"] = pair;
-        query["info"] = info;
-        builder.Query = query.ToString();
-
-        return _httpClient.GetAsync(builder.Uri);
-    }
-
-    public Task<HttpResponseMessage> GetTradableAssetPairsWithCountryAsync(string pair, string countryCode)
-    {
-        var builder = new UriBuilder($"{BaseUrl}AssetPairs");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
-
-        query["pair"]         = pair;
-        query["country_code"] = countryCode;
-        builder.Query         = query.ToString();
-
-        return _httpClient.GetAsync(builder.Uri);
-    }
-
-    public Task<HttpResponseMessage> GetTradableAssetPairsByInfoAndCountryAsync(string info, string countryCode)
-    {
-        var builder = new UriBuilder($"{BaseUrl}AssetPairs");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
-
-        query["info"]         = info;
-        query["country_code"] = countryCode;
-        builder.Query         = query.ToString();
-
-        return _httpClient.GetAsync(builder.Uri);
-    }
-
-    public Task<HttpResponseMessage> GetTradableAssetPairsAsync(string pair, string info, string countryCode)
-    {
-        var builder = new UriBuilder($"{BaseUrl}AssetPairs");
-        var query   = HttpUtility.ParseQueryString(string.Empty);
-
-        query["pair"]         = pair;
-        query["info"]         = info;
-        query["country_code"] = countryCode;
-        builder.Query         = query.ToString();
-
-        return _httpClient.GetAsync(builder.Uri);
-    }
+    public Task<HttpResponseMessage> GetTradableAssetPairsAsync(string pair, string info, string countryCode) =>
+        _httpClient.GetAsync($"{AssetPairsPath}?pair={pair}&info={info}&country={countryCode}");
 }
