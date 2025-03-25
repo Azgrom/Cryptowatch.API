@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API.Client.Types;
+namespace Kraken.REST.API.Client.Sandbox.Types;
 
 // Define the type that will hold the system status.
 public sealed record SystemStatus

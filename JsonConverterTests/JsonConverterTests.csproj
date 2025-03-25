@@ -43,7 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Kraken.REST.API.Client\Kraken.REST.API.Client.csproj" />
+      <ProjectReference Include="..\Kraken.REST.API.Client.Sandbox\Kraken.REST.API.Client.Sandbox.csproj" />
     </ItemGroup>
 
 </Project>

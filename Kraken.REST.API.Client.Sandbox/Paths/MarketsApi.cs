@@ -347,3 +347,5 @@
 //     private static StringBuilder ConcatPeriodArray(IEnumerable<TimeFrame> periods) =>
 //         new StringBuilder(50).AppendJoin(',', periods.Select(x => (int)x));
 // }
+
+namespace Kraken.REST.API.Client.Sandbox.Paths;

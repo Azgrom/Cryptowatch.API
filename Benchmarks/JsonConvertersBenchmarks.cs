@@ -3,7 +3,7 @@ using System.Text.Json;
 using BenchmarkDotNet.Attributes;
 using JsonConverterTests;
 using Kraken.REST.API.Client;
-using Kraken.REST.API.Client.Types;
+using Kraken.REST.API.Client.Sandbox.Types;
 
 namespace Benchmarks;
 

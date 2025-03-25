@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API.Client.Types;
+namespace Kraken.REST.API.Client.Sandbox.Types;
 
 public sealed record OrderBook
 {
@@ -130,7 +130,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
     private static Error UnknownPropertyResult(ref Utf8JsonReader jsonReader)
     {
-        var propName = Encoding.UTF8.GetString(jsonReader.ValueSequence);
+        var propName = EncodingExtensions.GetString(Encoding.UTF8, jsonReader.ValueSequence);
         return new Error(ErrorCodes.UnknownPropertyErrorCode, propName);
     }
 
@@ -470,7 +470,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             ref BookEntry      bookAsk
         )
         {
-            if (decimal.TryParse(jsonReader.ValueSpan, out var price1))
+            if (decimal.TryParse((ReadOnlySpan<byte>)jsonReader.ValueSpan, out var price1))
                 bookAsk.Price = price1;
             else
             {
@@ -483,7 +483,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             ref BookEntry      bookSpan
         )
         {
-            if (decimal.TryParse(jsonReader.ValueSpan, out var volume))
+            if (decimal.TryParse((ReadOnlySpan<byte>)jsonReader.ValueSpan, out var volume))
                 bookSpan.Volume = volume;
             else
             {

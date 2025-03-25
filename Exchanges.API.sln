@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonConverterTests", "JsonC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{B640034F-179D-46D6-AA96-18593BD74BA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API.Client.Sandbox", "Kraken.REST.API.Client.Sandbox\Kraken.REST.API.Client.Sandbox.csproj", "{FBED0638-9D0F-43DA-833B-A5B7E294E04E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,5 +33,9 @@ Global
 		{B640034F-179D-46D6-AA96-18593BD74BA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B640034F-179D-46D6-AA96-18593BD74BA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B640034F-179D-46D6-AA96-18593BD74BA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

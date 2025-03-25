@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API.Client.Types;
+namespace Kraken.REST.API.Client.Sandbox.Types;
 
 // Record representing a trading asset pair.
 public record AssetPair
