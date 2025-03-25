@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Be
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API.Client.Sandbox", "Kraken.REST.API.Client.Sandbox\Kraken.REST.API.Client.Sandbox.csproj", "{FBED0638-9D0F-43DA-833B-A5B7E294E04E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API.Client.Tests", "Kraken.REST.API.Client.Tests\Kraken.REST.API.Client.Tests.csproj", "{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,5 +39,9 @@ Global
 		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
