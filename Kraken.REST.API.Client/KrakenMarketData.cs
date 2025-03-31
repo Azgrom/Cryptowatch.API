@@ -29,16 +29,20 @@ public class KrakenMarketData
     };
 
     // Paths defined as constants
-    private const  string PublicPathV0     = "/0/public";
-    internal const string ServerTimePath   = $"{PublicPathV0}/Time";
-    internal const string SystemStatusPath = $"{PublicPathV0}/SystemStatus";
-    internal const string AssetsPath       = $"{PublicPathV0}/Assets";
-    internal const string AssetPairsPath   = $"{PublicPathV0}/AssetPairs";
-    internal const string AssetTickerPath  = $"{PublicPathV0}/Ticker";
-    internal const string OhlcPath         = $"{PublicPathV0}/OHLC";
-    internal const string OrderBookPath    = $"{PublicPathV0}/Depth";
-    internal const string RecentTradesPath = $"{PublicPathV0}/Trades";
-    internal const string SpreadPath       = $"{PublicPathV0}/Spread";
+    private const  string PublicPathV0                           = "/0/public";
+    internal const string ServerTimePath                         = $"{PublicPathV0}/Time";
+    internal const string SystemStatusPath                       = $"{PublicPathV0}/SystemStatus";
+    internal const string AssetsPath                             = $"{PublicPathV0}/Assets";
+    internal const string AssetPairsPath                         = $"{PublicPathV0}/AssetPairs";
+    internal const string AssetTickerPath                        = $"{PublicPathV0}/Ticker";
+    internal const string OhlcPath                               = $"{PublicPathV0}/OHLC";
+    internal const string OrderBookPath                          = $"{PublicPathV0}/Depth";
+    internal const string RecentTradesPath                       = $"{PublicPathV0}/Trades";
+    internal const string SpreadPath                             = $"{PublicPathV0}/Spread";
+    private const  int    SmallestNumberOfAsksAndBids            = 1;
+    private const  int    GreatestNumberOfAsksAndBids            = 500;
+    private const  int    GreatestAmountOfRecentTradesPerRequest = 1000;
+    private const  int    SmallestAmountOfRecentTradesPerRequest = 1;
 
     public KrakenMarketData(IHttpClientFactory httpClientFactory, CancellationToken token = default)
     {
@@ -167,6 +171,121 @@ public class KrakenMarketData
             .GetFromJsonAsync<AssetPair>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?pair={pair}&info={info}&country={countryCode}",
+                Options,
+                _token
+            );
+
+
+    public Task<Result<AssetTickerInfo>> GetAssetTickerAsync() =>
+        _httpClientFactory
+            .GetFromJsonAsync<AssetTickerInfo>(
+                nameof(KrakenMarketData),
+                AssetTickerPath,
+                Options,
+                _token
+            );
+
+    public Task<Result<AssetTickerInfo>> GetAssetTickerAsync(string pair) =>
+        _httpClientFactory
+            .GetFromJsonAsync<AssetTickerInfo>(
+                nameof(KrakenMarketData),
+                $"{AssetTickerPath}?pair={pair}",
+                Options,
+                _token
+            );
+
+    public Task<Result<OhlcResponse>> GetOhlcAsync(string pair) =>
+        _httpClientFactory
+            .GetFromJsonAsync<OhlcResponse>(
+                nameof(KrakenMarketData),
+                $"{OhlcPath}?pair={pair}",
+                Options,
+                _token
+            );
+
+    public Task<Result<OhlcResponse>> GetOhlcAsync(string pair, OhlcInterval interval)
+    {
+        if (interval is < OhlcInterval.OneMinute or > OhlcInterval.FifteenDays)
+            throw new ArgumentOutOfRangeException(nameof(interval));
+
+        return _httpClientFactory
+            .GetFromJsonAsync<OhlcResponse>(
+                nameof(KrakenMarketData),
+                $"{OhlcPath}?pair={pair}&interval={(int)interval}",
+                Options,
+                _token
+            );
+    }
+
+    public Task<Result<OrderBook>> GetOrderBookAsync(string pair) =>
+        _httpClientFactory
+            .GetFromJsonAsync<OrderBook>(
+                nameof(KrakenMarketData),
+                $"{OrderBookPath}?pair={pair}",
+                Options,
+                _token
+            );
+
+    public Task<Result<OrderBook>> GetOrderBookAsync(string pair, int count)
+    {
+        if (count is < SmallestNumberOfAsksAndBids or > GreatestNumberOfAsksAndBids)
+            throw new ArgumentOutOfRangeException(nameof(count));
+
+        return _httpClientFactory
+            .GetFromJsonAsync<OrderBook>(
+                nameof(KrakenMarketData),
+                $"{OrderBookPath}?pair={pair}&count={count}",
+                Options,
+                _token
+            );
+    }
+
+    public Task<Result<RecentTradesResponse>> GetRecentTrades(string pair) =>
+        _httpClientFactory
+            .GetFromJsonAsync<RecentTradesResponse>(
+                nameof(KrakenMarketData),
+                $"{RecentTradesPath}?pair={pair}",
+                Options,
+                _token
+            );
+
+    public Task<Result<RecentTradesResponse>> GetRecentTrades(string pair, int since) =>
+        _httpClientFactory
+            .GetFromJsonAsync<RecentTradesResponse>(
+                nameof(KrakenMarketData),
+                $"{RecentTradesPath}?pair={pair}&since={since}",
+                Options,
+                _token
+            );
+
+    public Task<Result<RecentTradesResponse>> GetRecentTrades(string pair, int since, int count)
+    {
+        if (count is < SmallestAmountOfRecentTradesPerRequest or > GreatestAmountOfRecentTradesPerRequest)
+            throw new ArgumentOutOfRangeException(nameof(count));
+
+        return _httpClientFactory
+            .GetFromJsonAsync<RecentTradesResponse>(
+                nameof(KrakenMarketData),
+                $"{RecentTradesPath}?pair={pair}&since={since}&count={count}",
+                Options,
+                _token
+            );
+    }
+
+    public Task<Result<SpreadResponse>> GetSpreadAsync(string pair) =>
+        _httpClientFactory
+            .GetFromJsonAsync<SpreadResponse>(
+                nameof(KrakenMarketData),
+                $"{SpreadPath}?pair={pair}",
+                Options,
+                _token
+            );
+
+    public Task<Result<SpreadResponse>> GetSpreadAsync(string pair, int since) =>
+        _httpClientFactory
+            .GetFromJsonAsync<SpreadResponse>(
+                nameof(KrakenMarketData),
+                $"{SpreadPath}?pair={pair}&since={since}",
                 Options,
                 _token
             );
