@@ -5,6 +5,15 @@ using CoreAbstractions;
 namespace Kraken.REST.API.Client.Types;
 
 /// <summary>
+/// Represents the response containing asset ticker data.
+/// </summary>
+public sealed record AssetTickerResponse
+{
+    public AssetTickerResponse(Dictionary<string, AssetTickerInfo> tickers) { Tickers = tickers; }
+    public Dictionary<string, AssetTickerInfo> Tickers { get; init; }
+}
+
+/// <summary>
 ///  Represents the ticker information for an asset.
 /// </summary>
 public record AssetTickerInfo
@@ -53,13 +62,6 @@ public record AssetTickerInfo
     /// Today's opening price
     /// </summary>
     public string O { get; init; } = string.Empty;
-}
-
-// Container for the entire ticker response.
-public sealed record AssetTickerResponse
-{
-    public AssetTickerResponse(Dictionary<string, AssetTickerInfo> tickers) { Tickers = tickers; }
-    public Dictionary<string, AssetTickerInfo> Tickers { get; init; }
 }
 
 /// <summary>

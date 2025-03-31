@@ -7,9 +7,9 @@ using CoreAbstractions;
 
 namespace Kraken.REST.API.Client.Types;
 
-public sealed record OrderBook
+public sealed record OrderBookResponse
 {
-    public OrderBook(string[] errors, List<PairOrderBookEntries> pairOrderBookSpan)
+    public OrderBookResponse(string[] errors, List<PairOrderBookEntries> pairOrderBookSpan)
     {
         Errors            = errors;
         PairOrderBookSpan = pairOrderBookSpan;
@@ -19,7 +19,7 @@ public sealed record OrderBook
     public List<PairOrderBookEntries> PairOrderBookSpan { get; private set; }
 }
 
-public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
+public class OrderBookJsonConverter : JsonConverter<Result<OrderBookResponse>>
 {
     private const uint          PricePositionInBookArray     = 1;
     private const uint          VolumePositionInBookArray    = 2;
@@ -28,9 +28,9 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
     private       JsonTokenType _tokenType                   = JsonTokenType.None;
     private       BookBuilder   _bookBuilder                 = BookBuilder.Create();
 
-    public Result<OrderBook> IntoOhlc(ref Utf8JsonReader jsonReader) => Read(ref jsonReader, typeof(OrderBook), null);
+    public Result<OrderBookResponse> IntoOhlc(ref Utf8JsonReader jsonReader) => Read(ref jsonReader, typeof(OrderBookResponse), null);
 
-    public override Result<OrderBook> Read(
+    public override Result<OrderBookResponse> Read(
         ref Utf8JsonReader    jsonReader,
         Type                  typeToConvert,
         JsonSerializerOptions options
@@ -118,14 +118,14 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
         {
             _nextReadResult = jsonReader.ReadNext();
             jsonReader.TrySkip();
-            return new OrderBook(errors, pairOrderBookEntries);
+            return new OrderBookResponse(errors, pairOrderBookEntries);
         }
 
         return new Error(ErrorCodes.UnexpectedTokenErrorCode,
             $"Unexpected End of Error Array: {_nextReadResult.Error}");
     }
 
-    public override void Write(Utf8JsonWriter writer, Result<OrderBook> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Result<OrderBookResponse> value, JsonSerializerOptions options)
     {
         throw new NotImplementedException();
     }

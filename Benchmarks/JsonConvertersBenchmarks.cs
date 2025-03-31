@@ -29,6 +29,6 @@ public class JsonConvertersBenchmarks
     public void DeserializeOrderBook()
     {
         var allowNamedFloatingPointLiterals = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals;
-        JsonSerializer.Deserialize<Result<OrderBook>>(RestResponses.ValidOrderBookResponse, _options);
+        JsonSerializer.Deserialize<Result<OrderBookResponse>>(RestResponses.ValidOrderBookResponse, _options);
     }
 }

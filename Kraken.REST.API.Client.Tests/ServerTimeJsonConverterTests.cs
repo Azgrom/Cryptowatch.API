@@ -24,7 +24,7 @@ public class ServerTimeJsonConverterTests
         var utf8JsonReader                = new Utf8JsonReader(Encoding.UTF8.GetBytes(RestResponses.ServerTimeExample));
         var serverServerTimeJsonConverter = new ServerTimeInfoJsonConverter();
 
-        var result = serverServerTimeJsonConverter.Read(ref utf8JsonReader, typeof(Result<ServerTime>), null);
+        var result = serverServerTimeJsonConverter.Read(ref utf8JsonReader, typeof(Result<ServerTimeResponse>), null);
 
         Console.WriteLine(result);
     }
@@ -42,7 +42,7 @@ public class ServerTimeJsonConverterTests
                       }
                       """;
 
-        var result = JsonSerializer.Deserialize<Result<ServerTime>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<ServerTimeResponse>>(json, _options);
         Assert.True(result.IsSuccess, "Expected a successful result");
         Assert.Equal(1688669448, result.Value.Unixtime);
         Assert.Equal("Thu, 06 Jul 23 18:50:48 +0000", result.Value.Rfc1123);
@@ -58,7 +58,7 @@ public class ServerTimeJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<ServerTime>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<ServerTimeResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to missing unixtime");
         Assert.Contains("unixtime", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -73,7 +73,7 @@ public class ServerTimeJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<ServerTime>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<ServerTimeResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to missing rfc1123");
         Assert.Contains("rfc1123", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -83,7 +83,7 @@ public class ServerTimeJsonConverterTests
     {
         // Root is not an object.
         string json = @"[]";
-        var result = JsonSerializer.Deserialize<Result<ServerTime>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<ServerTimeResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure when root is not an object");
         Assert.Contains("Expected StartObject", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -99,7 +99,7 @@ public class ServerTimeJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<ServerTime>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<ServerTimeResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure because the error property is not an array");
         Assert.Contains("Expected StartArray", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -116,7 +116,7 @@ public class ServerTimeJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<ServerTime>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<ServerTimeResponse>>(json, _options);
         Assert.True(result.IsSuccess, "Expected a successful result when unixtime is a string");
         Assert.Equal(1688669448, result.Value.Unixtime);
         Assert.Equal("Thu, 06 Jul 23 18:50:48 +0000", result.Value.Rfc1123);

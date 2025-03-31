@@ -50,17 +50,17 @@ public class KrakenMarketData
         _token             = token;
     }
 
-    public Task<Result<ServerTime>> GetServerTimeAsync() =>
-        _httpClientFactory.GetFromJsonAsync<ServerTime>(
+    public Task<Result<ServerTimeResponse>> GetServerTimeAsync() =>
+        _httpClientFactory.GetFromJsonAsync<ServerTimeResponse>(
             nameof(KrakenMarketData),
             ServerTimePath,
             Options,
             _token
         );
 
-    public Task<Result<SystemStatus>> GetSystemStatusAsync() =>
+    public Task<Result<SystemStatusResponse>> GetSystemStatusAsync() =>
         _httpClientFactory
-            .GetFromJsonAsync<SystemStatus>(
+            .GetFromJsonAsync<SystemStatusResponse>(
                 nameof(KrakenMarketData),
                 SystemStatusPath,
                 Options,
@@ -103,72 +103,72 @@ public class KrakenMarketData
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsAsync() =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsAsync() =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 AssetPairsPath,
                 Options,
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsAsync(string pair) =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsAsync(string pair) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?pair={pair}",
                 Options,
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsByInfoAsync(string info) =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsByInfoAsync(string info) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?info={info}",
                 Options,
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsByCountryAsync(string countryCode) =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsByCountryAsync(string countryCode) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?country={countryCode}",
                 Options,
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsAsync(string pair, string info) =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsAsync(string pair, string info) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?pair={pair}&info={info}",
                 Options,
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsWithCountryAsync(string pair, string countryCode) =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsWithCountryAsync(string pair, string countryCode) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?pair={pair}&country={countryCode}",
                 Options,
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsByInfoAndCountryAsync(string info, string countryCode) =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsByInfoAndCountryAsync(string info, string countryCode) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?info={info}&country={countryCode}",
                 Options,
                 _token
             );
 
-    public Task<Result<AssetPair>> GetTradableAssetPairsAsync(string pair, string info, string countryCode) =>
+    public Task<Result<AssetPairResponse>> GetTradableAssetPairsAsync(string pair, string info, string countryCode) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetPair>(
+            .GetFromJsonAsync<AssetPairResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetPairsPath}?pair={pair}&info={info}&country={countryCode}",
                 Options,
@@ -176,18 +176,18 @@ public class KrakenMarketData
             );
 
 
-    public Task<Result<AssetTickerInfo>> GetAssetTickerAsync() =>
+    public Task<Result<AssetTickerResponse>> GetAssetTickerAsync() =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetTickerInfo>(
+            .GetFromJsonAsync<AssetTickerResponse>(
                 nameof(KrakenMarketData),
                 AssetTickerPath,
                 Options,
                 _token
             );
 
-    public Task<Result<AssetTickerInfo>> GetAssetTickerAsync(string pair) =>
+    public Task<Result<AssetTickerResponse>> GetAssetTickerAsync(string pair) =>
         _httpClientFactory
-            .GetFromJsonAsync<AssetTickerInfo>(
+            .GetFromJsonAsync<AssetTickerResponse>(
                 nameof(KrakenMarketData),
                 $"{AssetTickerPath}?pair={pair}",
                 Options,
@@ -217,22 +217,22 @@ public class KrakenMarketData
             );
     }
 
-    public Task<Result<OrderBook>> GetOrderBookAsync(string pair) =>
+    public Task<Result<OrderBookResponse>> GetOrderBookAsync(string pair) =>
         _httpClientFactory
-            .GetFromJsonAsync<OrderBook>(
+            .GetFromJsonAsync<OrderBookResponse>(
                 nameof(KrakenMarketData),
                 $"{OrderBookPath}?pair={pair}",
                 Options,
                 _token
             );
 
-    public Task<Result<OrderBook>> GetOrderBookAsync(string pair, int count)
+    public Task<Result<OrderBookResponse>> GetOrderBookAsync(string pair, int count)
     {
         if (count is < SmallestNumberOfAsksAndBids or > GreatestNumberOfAsksAndBids)
             throw new ArgumentOutOfRangeException(nameof(count));
 
         return _httpClientFactory
-            .GetFromJsonAsync<OrderBook>(
+            .GetFromJsonAsync<OrderBookResponse>(
                 nameof(KrakenMarketData),
                 $"{OrderBookPath}?pair={pair}&count={count}",
                 Options,

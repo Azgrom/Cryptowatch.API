@@ -4,6 +4,15 @@ using CoreAbstractions;
 
 namespace Kraken.REST.API.Client.Types;
 
+// Container record holding the overall recent trades response.
+public sealed record RecentTradesResponse
+{
+    // "last" is an ID to be used as since when polling for new trade data.
+    public string Last { get; init; } = string.Empty;
+    // Maps asset pair names (e.g. "XXBTZUSD") to an array of TradeEntry.
+    public Dictionary<string, TradeEntry[]> Trades { get; init; } = new();
+}
+
 // Represents a single trade entry.
 public record TradeEntry
 {
@@ -14,15 +23,6 @@ public record TradeEntry
     public string OrderType { get; init; } = string.Empty;
     public string Misc      { get; init; } = string.Empty;
     public long   TradeId   { get; init; }
-}
-
-// Container record holding the overall recent trades response.
-public sealed record RecentTradesResponse
-{
-    // "last" is an ID to be used as since when polling for new trade data.
-    public string Last { get; init; } = string.Empty;
-    // Maps asset pair names (e.g. "XXBTZUSD") to an array of TradeEntry.
-    public Dictionary<string, TradeEntry[]> Trades { get; init; } = new();
 }
 
 // Custom converter for deserializing the JSON into a Result<RecentTradesResponse>.

@@ -5,9 +5,9 @@ using CoreAbstractions;
 namespace Kraken.REST.API.Client.Types;
 
 // Define the type that will hold the system status.
-public sealed record SystemStatus
+public sealed record SystemStatusResponse
 {
-    public SystemStatus(string status, string timestamp)
+    public SystemStatusResponse(string status, string timestamp)
     {
         Status = status;
         Timestamp = timestamp;
@@ -17,12 +17,12 @@ public sealed record SystemStatus
 }
 
 // Custom converter for deserializing the JSON into a Result<SystemStatus>
-public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
+public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatusResponse>>
 {
     // Allowed status values per schema.
     private static readonly string[] AllowedStatuses = new[] { "online", "maintenance", "cancel_only", "post_only" };
 
-    public override Result<SystemStatus> Read(ref Utf8JsonReader jsonReader, Type typeToConvert, JsonSerializerOptions options)
+    public override Result<SystemStatusResponse> Read(ref Utf8JsonReader jsonReader, Type typeToConvert, JsonSerializerOptions options)
     {
         try
         {
@@ -155,7 +155,7 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
                     $"Expected EndObject for root but found {jsonReader.TokenType}");
 
             // Return the successfully parsed SystemStatus.
-            var systemStatus = new SystemStatus(status, timestamp);
+            var systemStatus = new SystemStatusResponse(status, timestamp);
             return systemStatus; // Uses implicit conversion operator for a success.
         }
         catch (Exception ex)
@@ -165,7 +165,7 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatus>>
         }
     }
 
-    public override void Write(Utf8JsonWriter writer, Result<SystemStatus> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Result<SystemStatusResponse> value, JsonSerializerOptions options)
     {
         // Basic serialization implementation.
         writer.WriteStartObject();

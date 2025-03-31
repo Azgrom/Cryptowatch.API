@@ -36,7 +36,7 @@ public class OrderBookJsonConverterTests
             var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
-            var result = converter.Read(ref reader, typeof(OrderBook), options: null);
+            var result = converter.Read(ref reader, typeof(OrderBookResponse), options: null);
 
             Assert.True(result.IsFailure, "Deserialization should have failed.");
             // When the "error" property is not an array, the error sweep fails and returns UnexpectedTokenError.
@@ -54,7 +54,7 @@ public class OrderBookJsonConverterTests
             var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
-            var result = converter.Read(ref reader, typeof(OrderBook), options: null);
+            var result = converter.Read(ref reader, typeof(OrderBookResponse), options: null);
 
             Assert.True(result.IsFailure, "Deserialization should have failed due to missing result.");
             // In the absence of a "result" property, the converter ends up with a null order book and returns UnexpectedTokenError.
@@ -73,7 +73,7 @@ public class OrderBookJsonConverterTests
             var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
-            var result = converter.Read(ref reader, typeof(OrderBook), options: null);
+            var result = converter.Read(ref reader, typeof(OrderBookResponse), options: null);
 
             Assert.True(result.IsFailure, "Deserialization should have failed because result is not an object.");
             Assert.Equal("EnteringObjectError", result.Error.Code);
@@ -96,7 +96,7 @@ public class OrderBookJsonConverterTests
             var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
-            var result = converter.Read(ref reader, typeof(OrderBook), options: null);
+            var result = converter.Read(ref reader, typeof(OrderBookResponse), options: null);
 
             Assert.True(result.IsFailure, "Deserialization should have failed because asks is not an array.");
             Assert.Equal("EnteringPropertyNameError", result.Error.Code);
@@ -119,7 +119,7 @@ public class OrderBookJsonConverterTests
             var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
-            var result = converter.Read(ref reader, typeof(OrderBook), options: null);
+            var result = converter.Read(ref reader, typeof(OrderBookResponse), options: null);
 
             Assert.True(result.IsFailure, "Deserialization should have failed because bids is not an array.");
             Assert.Equal("EnteringPropertyNameError", result.Error.Code);
@@ -136,7 +136,7 @@ public class OrderBookJsonConverterTests
             var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
-            var result = converter.Read(ref reader, typeof(OrderBook), options: null);
+            var result = converter.Read(ref reader, typeof(OrderBookResponse), options: null);
 
             Assert.True(result.IsFailure, "Deserialization should have failed due to an unexpected property.");
             Assert.Equal("UnknownPropertyError", result.Error.Code);

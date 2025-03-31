@@ -9,15 +9,15 @@ namespace Kraken.REST.API.Client.Types;
 /// </summary>
 public sealed record AssetInfoResponse
 {
-    public AssetInfoResponse(Dictionary<string, AssetInfo> assets) => Assets = assets;
-    public Dictionary<string, AssetInfo> Assets { get; init; }
+    public AssetInfoResponse(Dictionary<string, AssetInfoData> assets) => Assets = assets;
+    public Dictionary<string, AssetInfoData> Assets { get; init; }
 }
 
 
 /// <summary>
 /// Record that represents the asset information.
 /// </summary>
-public record AssetInfo
+public record AssetInfoData
 {
     public string  Aclass          { get; init; } = string.Empty;
     public string  Altname         { get; init; } = string.Empty;
@@ -82,7 +82,7 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
         if (jsonReader.TokenType != JsonTokenType.StartObject)
             return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Expected StartObject for 'result' but found {jsonReader.TokenType}");
 
-        var assets = new Dictionary<string, AssetInfo>();
+        var assets = new Dictionary<string, AssetInfoData>();
 
         // Loop through all properties in the "result" object.
         while (true)
@@ -160,7 +160,7 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
     /// <summary>
     /// Reads a single AssetInfo object from the current JSON position.
     /// </summary>
-    private static Result<AssetInfo> ReadAssetInfo(ref Utf8JsonReader jsonReader, string assetKey)
+    private static Result<AssetInfoData> ReadAssetInfo(ref Utf8JsonReader jsonReader, string assetKey)
     {
         string  aclass           = string.Empty;
         string  altname          = string.Empty;
@@ -259,7 +259,7 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
         if (Array.IndexOf(AllowedStatuses, status) < 0)
             return new Error(ErrorCodes.InvalidValueErrorCode, $"Invalid status value '{status}' for asset '{assetKey}'");
 
-        return new AssetInfo
+        return new AssetInfoData
         {
             Aclass          = aclass,
             Altname         = altname,

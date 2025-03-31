@@ -4,9 +4,9 @@ using CoreAbstractions;
 
 namespace Kraken.REST.API.Client.Types;
 
-public sealed record ServerTime
+public sealed record ServerTimeResponse
 {
-    public ServerTime(long unixtime, string rfc1123)
+    public ServerTimeResponse(long unixtime, string rfc1123)
     {
         Unixtime = unixtime;
         Rfc1123  = rfc1123;
@@ -16,9 +16,9 @@ public sealed record ServerTime
 }
 
 // Custom converter for deserializing the JSON into a Result<TimeInfo>
-public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTime>>
+public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTimeResponse>>
 {
-    public override Result<ServerTime> Read(
+    public override Result<ServerTimeResponse> Read(
         ref Utf8JsonReader    jsonReader, 
         Type                  typeToConvert, 
         JsonSerializerOptions options)
@@ -169,7 +169,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                 return new Error(ErrorCodes.UnexpectedTokenErrorCode,
                     $"Expected EndObject for root but found {jsonReader.TokenType}");
 
-            var timeInfo = new ServerTime(unixtime, rfc1123);
+            var timeInfo = new ServerTimeResponse(unixtime, rfc1123);
             return timeInfo; // Uses implicit conversion operator for a success.
         }
         catch (Exception ex)
@@ -181,7 +181,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
 
     public override void Write(
         Utf8JsonWriter        writer, 
-        Result<ServerTime>    value, 
+        Result<ServerTimeResponse>    value,
         JsonSerializerOptions options)
     {
         // For demonstration we provide a basic implementation.

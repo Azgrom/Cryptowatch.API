@@ -30,7 +30,7 @@ public class SystemStatusJsonConverterTests
                       }
                       """;
 
-        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(RestResponses.SystemStatusExample, _options);
+        var result = JsonSerializer.Deserialize<Result<SystemStatusResponse>>(RestResponses.SystemStatusExample, _options);
         Assert.True(result.IsSuccess, "Expected a successful result");
         Assert.Equal("online",               result.Value.Status);
         Assert.Equal("2023-07-06T18:52:00Z", result.Value.Timestamp);
@@ -46,7 +46,7 @@ public class SystemStatusJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<SystemStatusResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to missing status");
         Assert.Contains("status", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -61,7 +61,7 @@ public class SystemStatusJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<SystemStatusResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to missing timestamp");
         Assert.Contains("timestamp", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -77,7 +77,7 @@ public class SystemStatusJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<SystemStatusResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to invalid status value");
         Assert.Contains("Invalid status value", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -93,7 +93,7 @@ public class SystemStatusJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<SystemStatusResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure due to invalid timestamp format");
         Assert.Contains("Invalid timestamp format", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -109,7 +109,7 @@ public class SystemStatusJsonConverterTests
             }
         }";
 
-        var result = JsonSerializer.Deserialize<Result<SystemStatus>>(json, _options);
+        var result = JsonSerializer.Deserialize<Result<SystemStatusResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure because the error property is not an array");
         Assert.Contains("Expected StartArray", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }
@@ -118,7 +118,7 @@ public class SystemStatusJsonConverterTests
     public void Deserialize_RootNotObject_ReturnsFailure()
     {
         string json   = @"[]";
-        var    result = JsonSerializer.Deserialize<Result<SystemStatus>>(json, _options);
+        var    result = JsonSerializer.Deserialize<Result<SystemStatusResponse>>(json, _options);
         Assert.True(result.IsFailure, "Expected failure when root is not an object");
         Assert.Contains("Expected StartObject", result.Error.Message, StringComparison.InvariantCultureIgnoreCase);
     }

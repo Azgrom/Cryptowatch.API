@@ -5,6 +5,21 @@ using CoreAbstractions;
 namespace Kraken.REST.API.Client.Types;
 
 /// <summary>
+/// Represents OHLC response data containing last update ID and tickers data.
+/// </summary>
+public sealed record OhlcResponse
+{
+    /// <summary>
+    /// Indicates the last received update ID.
+    /// </summary>
+    public int Last { get; init; }
+    /// <summary>
+    /// Contains tick data arrays grouped by ticker symbol.
+    /// </summary>
+    public Dictionary<string, TickData[]> Tickers { get; init; }
+}
+
+/// <summary>
 ///     Record struct representing a single tick of OHLC data.
 /// </summary>
 public readonly record struct TickData
@@ -42,21 +57,6 @@ public readonly record struct TickData
     /// </summary>
     public int Count { get; init; }
 
-}
-
-/// <summary>
-/// Represents OHLC response data containing last update ID and tickers data.
-/// </summary>
-public sealed record OhlcResponse
-{
-    /// <summary>
-    /// Indicates the last received update ID.
-    /// </summary>
-    public int Last { get; init; }
-    /// <summary>
-    /// Contains tick data arrays grouped by ticker symbol.
-    /// </summary>
-    public Dictionary<string, TickData[]> Tickers { get; init; }
 }
 
 /// <summary>

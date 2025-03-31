@@ -4,19 +4,19 @@ using CoreAbstractions;
 
 namespace Kraken.REST.API.Client.Types;
 
+// Container record holding the overall spread response.
+public sealed record SpreadResponse
+{
+    public int                              Last    { get; init; }
+    public Dictionary<string, SpreadData[]> Spreads { get; init; } = new();
+}
+
 // Represents a single spread entry.
 public record SpreadData
 {
     public int    Time { get; init; }
     public string Bid  { get; init; } = string.Empty;
     public string Ask  { get; init; } = string.Empty;
-}
-
-// Container record holding the overall spread response.
-public sealed record SpreadResponse
-{
-    public int                              Last    { get; init; }
-    public Dictionary<string, SpreadData[]> Spreads { get; init; } = new();
 }
 
 // Custom converter for deserializing the JSON into a Result<SpreadResponse>.
