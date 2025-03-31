@@ -885,7 +885,7 @@ GET https://api.kraken.com/0/public/Depth
 ### }
 GET https://api.kraken.com/0/public/Trades
 
-### Get Recent Trades
+### Get Recent Spread
 ### Request schema:
 ### Query Parameters
 ###
