@@ -24,21 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Update="RestResponses.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>RestResponses.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="RestResponses.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>RestResponses.resx</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
       <InternalsVisibleTo Include="Benchmarks" />
     </ItemGroup>
 

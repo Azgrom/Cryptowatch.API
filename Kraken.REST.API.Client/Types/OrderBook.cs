@@ -1,10 +1,11 @@
+using System.Buffers.Text;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API.Client.Sandbox.Types;
+namespace Kraken.REST.API.Client.Types;
 
 public sealed record OrderBook
 {
@@ -20,12 +21,12 @@ public sealed record OrderBook
 
 public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 {
-    private const uint          PricePositionInBookArray      = 1;
-    private const uint          VolumePositionInBookArray     = 2;
-    private const uint          TimestampPositionInBookArray  = 3;
-    private       Result        _nextReadResult               = Error.NullValue;
-    private       JsonTokenType _tokenType                    = JsonTokenType.None;
-    private       BookBuilder   _bookBuilder                  = BookBuilder.Create();
+    private const uint          PricePositionInBookArray     = 1;
+    private const uint          VolumePositionInBookArray    = 2;
+    private const uint          TimestampPositionInBookArray = 3;
+    private       Result        _nextReadResult              = Error.NullValue;
+    private       JsonTokenType _tokenType                   = JsonTokenType.None;
+    private       BookBuilder   _bookBuilder                 = BookBuilder.Create();
 
     public Result<OrderBook> IntoOhlc(ref Utf8JsonReader jsonReader) => Read(ref jsonReader, typeof(OrderBook), null);
 
@@ -120,7 +121,8 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             return new OrderBook(errors, pairOrderBookEntries);
         }
 
-        return new Error(ErrorCodes.UnexpectedTokenErrorCode, $"Unexpected End of Error Array: {_nextReadResult.Error}");
+        return new Error(ErrorCodes.UnexpectedTokenErrorCode,
+            $"Unexpected End of Error Array: {_nextReadResult.Error}");
     }
 
     public override void Write(Utf8JsonWriter writer, Result<OrderBook> value, JsonSerializerOptions options)
@@ -130,7 +132,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
 
     private static Error UnknownPropertyResult(ref Utf8JsonReader jsonReader)
     {
-        var propName = EncodingExtensions.GetString(Encoding.UTF8, jsonReader.ValueSequence);
+        var propName = Encoding.UTF8.GetString(jsonReader.ValueSpan);
         return new Error(ErrorCodes.UnknownPropertyErrorCode, propName);
     }
 
@@ -164,8 +166,8 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
         {
             var s        = jsonReader.GetString();
             var position = jsonReader.Position.GetInteger();
-            Debug.Assert(s == null, $"{nameof(JsonTokenType.String)} == null a position {position}");
-            Debug.Assert(s != null, $"{nameof(JsonTokenType.String)} != null a position {position}");
+            Debug.Assert(s == null, (string)$"{nameof(JsonTokenType.String)} == null a position {position}");
+            Debug.Assert(s != null, (string)$"{nameof(JsonTokenType.String)} != null a position {position}");
             errors.Add(s);
 
             _nextReadResult = jsonReader.ReadNext();
@@ -470,8 +472,9 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             ref BookEntry      bookAsk
         )
         {
-            if (decimal.TryParse((ReadOnlySpan<byte>)jsonReader.ValueSpan, out var price1))
-                bookAsk.Price = price1;
+            if (Utf8Parser.TryParse(jsonReader.ValueSpan, out decimal test, out int bytesConsumed)
+                && bytesConsumed == jsonReader.ValueSpan.Length)
+                bookAsk.Price = test;
             else
             {
                 // Pensar numa estratégia de erro
@@ -483,7 +486,8 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBook>>
             ref BookEntry      bookSpan
         )
         {
-            if (decimal.TryParse((ReadOnlySpan<byte>)jsonReader.ValueSpan, out var volume))
+            if (Utf8Parser.TryParse(jsonReader.ValueSpan, out decimal volume, out int bytesConsumed)
+                && bytesConsumed == jsonReader.ValueSpan.Length)
                 bookSpan.Volume = volume;
             else
             {

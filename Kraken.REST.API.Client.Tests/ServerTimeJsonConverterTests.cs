@@ -1,9 +1,9 @@
+using System.Text;
 using System.Text.Json;
 using CoreAbstractions;
-using Kraken.REST.API.Client;
-using Kraken.REST.API.Client.Sandbox.Types;
+using Kraken.REST.API.Client.Types;
 
-namespace JsonConverterTests;
+namespace Kraken.REST.API.Client.Tests;
 
 public class ServerTimeJsonConverterTests
 {
@@ -21,7 +21,7 @@ public class ServerTimeJsonConverterTests
     [Fact]
     public void Test1()
     {
-        var utf8JsonReader              = Helper.CreateReader(RestResponses.ServerTimeExample);
+        var utf8JsonReader                = new Utf8JsonReader(Encoding.UTF8.GetBytes(RestResponses.ServerTimeExample));
         var serverServerTimeJsonConverter = new ServerTimeInfoJsonConverter();
 
         var result = serverServerTimeJsonConverter.Read(ref utf8JsonReader, typeof(Result<ServerTime>), null);

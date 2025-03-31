@@ -2,17 +2,14 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API.Client.Sandbox.Types;
+namespace Kraken.REST.API.Client.Types;
 
 /// <summary>
 /// Record that holds the complete mapping of asset identifiers to AssetInfo.
 /// </summary>
 public sealed record AssetInfoResponse
 {
-    public AssetInfoResponse(Dictionary<string, AssetInfo> assets)
-    {
-        Assets = assets;
-    }
+    public AssetInfoResponse(Dictionary<string, AssetInfo> assets) => Assets = assets;
     public Dictionary<string, AssetInfo> Assets { get; init; }
 }
 
@@ -163,7 +160,7 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
     /// <summary>
     /// Reads a single AssetInfo object from the current JSON position.
     /// </summary>
-    private Result<AssetInfo> ReadAssetInfo(ref Utf8JsonReader jsonReader, string assetKey)
+    private static Result<AssetInfo> ReadAssetInfo(ref Utf8JsonReader jsonReader, string assetKey)
     {
         string  aclass           = string.Empty;
         string  altname          = string.Empty;

@@ -1,9 +1,8 @@
 using System.Text.Json;
 using CoreAbstractions;
-using Kraken.REST.API.Client;
-using Kraken.REST.API.Client.Sandbox.Types;
+using Kraken.REST.API.Client.Types;
 
-namespace JsonConverterTests;
+namespace Kraken.REST.API.Client.Tests;
 
 public class OhlcJsonConverterTests
 {

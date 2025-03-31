@@ -14,7 +14,7 @@
         <RepositoryUrl>https://github.com/Azgrom/Cryptowatch.API/tree/master</RepositoryUrl>
         <Description>A client for interacting with the CryptoWatch REST API</Description>
         <PackageIcon>cryptowat.ch.png</PackageIcon>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -33,6 +33,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CoreAbstractions\CoreAbstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Kraken.REST.API.Client.Tests" />
     </ItemGroup>
 
 </Project>

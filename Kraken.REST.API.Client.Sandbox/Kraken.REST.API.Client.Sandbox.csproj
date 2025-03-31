@@ -4,10 +4,21 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\CoreAbstractions\CoreAbstractions.csproj" />
+      <ProjectReference Include="..\Kraken.REST.API.Client\Kraken.REST.API.Client.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Types\" />
     </ItemGroup>
 
 </Project>

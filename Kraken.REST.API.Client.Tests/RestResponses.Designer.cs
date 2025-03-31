@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace JsonConverterTests {
+namespace Kraken.REST.API.Client.Tests {
     using System;
     
     
@@ -28,7 +28,7 @@ namespace JsonConverterTests {
         internal static System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.Equals(null, resourceMan)) {
-                    System.Resources.ResourceManager temp = new System.Resources.ResourceManager("JsonConverterTests.RestResponses", typeof(RestResponses).Assembly);
+                    System.Resources.ResourceManager temp = new System.Resources.ResourceManager("Kraken.REST.API.Client.Tests.RestResponses", typeof(RestResponses).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -47,7 +47,7 @@ namespace JsonConverterTests {
         
         internal static string ValidOrderBookResponse {
             get {
-                return ResourceManager.GetString("ValidAssetPairResponse", resourceCulture);
+                return ResourceManager.GetString("ValidOrderBookResponse", resourceCulture);
             }
         }
         

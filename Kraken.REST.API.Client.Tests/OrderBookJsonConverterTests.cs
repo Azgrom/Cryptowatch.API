@@ -1,16 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using Kraken.REST.API.Client;
-using Kraken.REST.API.Client.Sandbox.Types;
-using NSubstitute;
+using Kraken.REST.API.Client.Types;
 
-namespace JsonConverterTests;
-
-public static class Helper
-{
-    public static Utf8JsonReader CreateReader(string json) =>
-        new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
-}
+namespace Kraken.REST.API.Client.Tests;
 
 // These tests assume that your converter returns a Result<Ohlc> where IsFailure is true when an error is encountered,
 // and that the Error property contains a Code matching the string constants used in the converter.
@@ -19,7 +11,7 @@ public class OrderBookJsonConverterTests
     [Fact]
     public void Test1()
     {
-        var utf8JsonReader = Helper.CreateReader(RestResponses.ValidOrderBookResponse);
+        var utf8JsonReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(RestResponses.ValidOrderBookResponse));
         var jsonConverter  = new OrderBookJsonConverter();
 
         var ohlcJsonConverter      = jsonConverter.IntoOhlc(ref utf8JsonReader);
@@ -41,7 +33,7 @@ public class OrderBookJsonConverterTests
                   }
               }
             }";
-            var reader    = Helper.CreateReader(json);
+            var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
             var result = converter.Read(ref reader, typeof(OrderBook), options: null);
@@ -59,7 +51,7 @@ public class OrderBookJsonConverterTests
             {
               ""error"": []
             }";
-            var reader    = Helper.CreateReader(json);
+            var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
             var result = converter.Read(ref reader, typeof(OrderBook), options: null);
@@ -78,7 +70,7 @@ public class OrderBookJsonConverterTests
               ""error"": [],
               ""result"": ""not an object""
             }";
-            var reader    = Helper.CreateReader(json);
+            var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
             var result = converter.Read(ref reader, typeof(OrderBook), options: null);
@@ -101,7 +93,7 @@ public class OrderBookJsonConverterTests
                 }
               }
             }";
-            var reader    = Helper.CreateReader(json);
+            var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
             var result = converter.Read(ref reader, typeof(OrderBook), options: null);
@@ -124,7 +116,7 @@ public class OrderBookJsonConverterTests
                 }
               }
             }";
-            var reader    = Helper.CreateReader(json);
+            var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
             var result = converter.Read(ref reader, typeof(OrderBook), options: null);
@@ -141,7 +133,7 @@ public class OrderBookJsonConverterTests
             {
               ""foobar"": ""baz""
             }";
-            var reader    = Helper.CreateReader(json);
+            var reader    = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             var converter = new OrderBookJsonConverter();
 
             var result = converter.Read(ref reader, typeof(OrderBook), options: null);

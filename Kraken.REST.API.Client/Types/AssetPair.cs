@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CoreAbstractions;
 
-namespace Kraken.REST.API.Client.Sandbox.Types;
+namespace Kraken.REST.API.Client.Types;
 
 // Record representing a trading asset pair.
 public record AssetPair
@@ -226,7 +226,7 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
     /// <summary>
     /// Reads a single AssetPair object from the current JSON position.
     /// </summary>
-    private Result<AssetPair> ReadAssetPair(ref Utf8JsonReader jsonReader, string pairKey)
+    private static Result<AssetPair> ReadAssetPair(ref Utf8JsonReader jsonReader, string pairKey)
     {
         string altname              = string.Empty;
         string wsname               = string.Empty;

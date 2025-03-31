@@ -4,11 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API.Client", "K
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreAbstractions", "CoreAbstractions\CoreAbstractions.csproj", "{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonConverterTests", "JsonConverterTests\JsonConverterTests.csproj", "{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{B640034F-179D-46D6-AA96-18593BD74BA2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API.Client.Sandbox", "Kraken.REST.API.Client.Sandbox\Kraken.REST.API.Client.Sandbox.csproj", "{FBED0638-9D0F-43DA-833B-A5B7E294E04E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.REST.API.Client.Tests", "Kraken.REST.API.Client.Tests\Kraken.REST.API.Client.Tests.csproj", "{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}"
 EndProject
@@ -27,18 +23,10 @@ Global
 		{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25C1A68F-9418-4E9B-BEC7-0E85FCA21C7A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B9DD2F8-3BEC-445B-AA2F-2D41C0BE5CC4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B640034F-179D-46D6-AA96-18593BD74BA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B640034F-179D-46D6-AA96-18593BD74BA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B640034F-179D-46D6-AA96-18593BD74BA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B640034F-179D-46D6-AA96-18593BD74BA2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FBED0638-9D0F-43DA-833B-A5B7E294E04E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB0C9D7B-7BC3-49EC-A43D-F6E09FB9D0F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
