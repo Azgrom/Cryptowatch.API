@@ -28,7 +28,8 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBookResponse>>
     private       JsonTokenType _tokenType                   = JsonTokenType.None;
     private       BookBuilder   _bookBuilder                 = BookBuilder.Create();
 
-    public Result<OrderBookResponse> IntoOhlc(ref Utf8JsonReader jsonReader) => Read(ref jsonReader, typeof(OrderBookResponse), null);
+    public Result<OrderBookResponse> IntoOhlc(ref Utf8JsonReader jsonReader) =>
+        Read(ref jsonReader, typeof(OrderBookResponse), null);
 
     public override Result<OrderBookResponse> Read(
         ref Utf8JsonReader    jsonReader,
@@ -435,7 +436,11 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBookResponse>>
 
         public PairOrderBookEntries Build(string propName)
         {
-            var pairOrderBookEntries = new PairOrderBookEntries(propName, _asks, _bids);
+            var pairOrderBookEntries = new PairOrderBookEntries(
+                propName,
+                new List<BookEntry>(_asks),
+                new List<BookEntry>(_bids)
+            );
 
             _asks.Clear();
             _bids.Clear();
