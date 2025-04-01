@@ -9,14 +9,14 @@ namespace Kraken.REST.API.Client.Tests;
 
 public sealed class KrakenApiMock
 {
-    private const    string         AssetTickerPath  = KrakenMarketData.AssetTickerPath;
-    private const    string         OhlcPath         = KrakenMarketData.OhlcPath;
-    private const    string         OrderBookPath    = KrakenMarketData.OrderBookPath;
-    private const    string         RecentTradesPath = KrakenMarketData.RecentTradesPath;
-    private const    string         SpreadPath       = KrakenMarketData.SpreadPath;
     private readonly WireMockServer _wireMockServer;
 
-    public KrakenApiMock(int port) => _wireMockServer = WireMockServer.Start(port);
+    private readonly IRequestBuilder _orderBookGetPath = Request.Create()
+        .WithPath(KrakenMarketData.OrderBookPath)
+        .WithParam("pair", "XBTUSD")
+        .UsingGet();
+
+    public KrakenApiMock() => _wireMockServer = WireMockServer.Start();
 
     public string Url => _wireMockServer.Url!;
 
@@ -32,14 +32,26 @@ public sealed class KrakenApiMock
                     .WithBody(RestResponses.ServerTimeExample)
             );
 
-    public void SetupGetOrderBook()
+    public void SetupValidGetOrderBookEndpoint()
     {
         _wireMockServer.Given(
-                Request.Create()
+                _orderBookGetPath
             )
             .RespondWith(
                 Response.Create()
                     .WithBody(RestResponses.ValidOrderBookResponse)
+                    .WithStatusCode(HttpStatusCode.OK)
+            );
+    }
+
+    public void SetupGetOrderBookEndpointWithInvalidErrorObject()
+    {
+        _wireMockServer.Given(
+                _orderBookGetPath
+            )
+            .RespondWith(
+                Response.Create()
+                    .WithBody(RestResponses.OrderBookResponseWithInvalidErrorObject)
                     .WithStatusCode(HttpStatusCode.OK)
             );
     }
