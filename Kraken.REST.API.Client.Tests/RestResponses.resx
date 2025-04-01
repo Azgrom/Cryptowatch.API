@@ -1544,4 +1544,27 @@
   }
 }</value>
   </data>
+  <data name="OrderBookResponseWithInvalidErrorObject" xml:space="preserve">
+    <value>{
+  "error": "",
+  "result": {
+    "XXBTZUSD": {
+      "asks": [
+        [
+          "102261.70000",
+          "19.951",
+          1738366311
+        ]
+      ],
+      "bids": [
+        [
+          "102261.60000",
+          "0.005",
+          1738366277
+        ]
+      ]
+    }
+  }
+}</value>
+  </data>
 </root>

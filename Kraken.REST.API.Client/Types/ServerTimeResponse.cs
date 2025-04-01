@@ -153,7 +153,7 @@ public sealed class ServerTimeInfoJsonConverter : JsonConverter<Result<ServerTim
                 else
                 {
                     // For any unknown property, skip its value.
-                    jsonReader.Skip();
+                    jsonReader.SkipToEnd();
                 }
             }
 

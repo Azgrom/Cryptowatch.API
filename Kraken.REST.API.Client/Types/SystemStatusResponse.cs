@@ -121,7 +121,7 @@ public class SystemStatusJsonConverter : JsonConverter<Result<SystemStatusRespon
                 else
                 {
                     // Skip any unknown property.
-                    jsonReader.Skip();
+                    jsonReader.SkipToEnd();
                 }
             }
 

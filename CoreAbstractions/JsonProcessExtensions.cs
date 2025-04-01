@@ -4,16 +4,23 @@ namespace CoreAbstractions;
 
 public static class JsonProcessExtensions
 {
-public static Result ReadNext(this ref Utf8JsonReader jsonReader)
-{
-    try
+    public static Result ReadNext(this ref Utf8JsonReader jsonReader)
     {
-        return jsonReader.Read();
+        try
+        {
+            return jsonReader.Read();
+        }
+        catch (JsonException jsonException)
+        {
+            var readingJsonError = new Error(jsonException.StackTrace, jsonException.Message);
+            return readingJsonError;
+        }
     }
-    catch (JsonException jsonException)
+
+    public static void SkipToEnd(this ref Utf8JsonReader jsonReader)
     {
-        var readingJsonError = new Error(jsonException.StackTrace, jsonException.Message);
-        return readingJsonError;
+        while (jsonReader.ReadNext().IsSuccess && jsonReader.TrySkip() && jsonReader.CurrentDepth is not 0)
+        {
+        }
     }
-}
 }

@@ -83,6 +83,12 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBookResponse>>
             }
         }
 
+        if (_nextReadResult.IsFailure)
+        {
+            jsonReader.SkipToEnd();
+            return new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
+        }
+
         _nextReadResult = jsonReader.ReadNext();
         if (_nextReadResult.IsFailure) return new Error(ErrorCodes.StartReadingErrorCode, _nextReadResult.Error);
 
@@ -118,7 +124,7 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBookResponse>>
             pairOrderBookEntries is not null)
         {
             _nextReadResult = jsonReader.ReadNext();
-            jsonReader.TrySkip();
+            jsonReader.SkipToEnd();
             return new OrderBookResponse(errors, pairOrderBookEntries);
         }
 
@@ -167,8 +173,23 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBookResponse>>
         {
             var s        = jsonReader.GetString();
             var position = jsonReader.Position.GetInteger();
-            Debug.Assert(s == null, (string)$"{nameof(JsonTokenType.String)} == null a position {position}");
-            Debug.Assert(s != null, (string)$"{nameof(JsonTokenType.String)} != null a position {position}");
+
+            if (s is null)
+            {
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode,
+                    $"Null token sweeping errors at position: {position}");
+            }
+
+            try
+            {
+                Debug.Assert(s == null, (string)$"{nameof(JsonTokenType.String)} == null a position {position}");
+                Debug.Assert(s != null, (string)$"{nameof(JsonTokenType.String)} != null a position {position}");
+            }
+            catch (Exception e)
+            {
+                return new Error(ErrorCodes.UnexpectedTokenErrorCode, e.Message);
+            }
+
             errors.Add(s);
 
             _nextReadResult = jsonReader.ReadNext();
@@ -438,8 +459,8 @@ public class OrderBookJsonConverter : JsonConverter<Result<OrderBookResponse>>
         {
             var pairOrderBookEntries = new PairOrderBookEntries(
                 propName,
-                new List<BookEntry>(_asks),
-                new List<BookEntry>(_bids)
+                _asks.ToList(),
+                _bids.ToList()
             );
 
             _asks.Clear();

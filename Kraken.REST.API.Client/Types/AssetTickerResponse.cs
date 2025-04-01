@@ -285,7 +285,7 @@ public sealed class AssetTickerJsonConverter : JsonConverter<Result<AssetTickerR
                     o      = jsonReader.GetString();
                     foundO = true;
                     break;
-                default: jsonReader.Skip(); break;
+                default: jsonReader.SkipToEnd(); break;
             }
         }
 

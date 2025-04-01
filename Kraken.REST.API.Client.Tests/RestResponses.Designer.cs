@@ -128,5 +128,11 @@ namespace Kraken.REST.API.Client.Tests {
                 return ResourceManager.GetString("InvalidStatusAssetInfoObject", resourceCulture);
             }
         }
+        
+        internal static string OrderBookResponseWithInvalidErrorObject {
+            get {
+                return ResourceManager.GetString("OrderBookResponseWithInvalidErrorObject", resourceCulture);
+            }
+        }
     }
 }

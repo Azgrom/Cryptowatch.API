@@ -236,7 +236,7 @@ public class AssetInfoJsonConverter : JsonConverter<Result<AssetInfoResponse>>
                     break;
                 default:
                     // Skip any unknown property.
-                    jsonReader.Skip();
+                    jsonReader.SkipToEnd();
                     break;
             }
         }

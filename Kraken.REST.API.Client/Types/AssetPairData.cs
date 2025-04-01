@@ -595,7 +595,7 @@ public class AssetPairJsonConverter : JsonConverter<Result<AssetPairResponse>>
                     break;
                 default:
                     // Skip any unknown property.
-                    jsonReader.Skip(); break;
+                    jsonReader.SkipToEnd(); break;
             }
         }
 
